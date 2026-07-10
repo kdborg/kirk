@@ -229,7 +229,8 @@ class Game {
 
         // Scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xf4f6f9);
+        this.applySceneBackground();
+        window.addEventListener('themechange', () => this.applySceneBackground());
 
         // Camera
         this.camera = new THREE.PerspectiveCamera(75, this.container.clientWidth / this.container.clientHeight, 0.1, 1000);
@@ -605,6 +606,13 @@ class Game {
         this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    }
+
+    applySceneBackground() {
+        const css = getComputedStyle(document.documentElement)
+            .getPropertyValue('--scene-bg')
+            .trim();
+        this.scene.background = new THREE.Color(css || '#f4f6f9');
     }
 
     animate() {

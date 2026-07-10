@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #fff;
-    color: #1f2933;
+    background: var(--bg);
+    color: var(--fg);
     min-height: 100vh;
 }
 
@@ -20,7 +20,7 @@ body {
 
 .container h2 {
     text-align: center;
-    color: #3b5169;
+    color: var(--heading);
     margin-bottom: 20px;
     font-size: 2.5em;
     font-weight: 600;
@@ -46,7 +46,7 @@ body {
     gap: 5px;
     cursor: pointer;
     font-size: 1em;
-    color: #555;
+    color: var(--fg-muted);
 }
 
 .game-mode input[type="radio"] {
@@ -59,8 +59,8 @@ body {
 }
 
 button {
-    background: #4b6584;
-    color: white;
+    background: var(--accent);
+    color: var(--on-accent);
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -71,7 +71,7 @@ button {
 }
 
 button:hover {
-    background: #3b5169;
+    background: var(--accent-strong);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(75, 101, 132, 0.3);
 }
@@ -81,8 +81,8 @@ button:active {
 }
 
 .game-info {
-    background: #eef2f7;
-    border: 1px solid #dbe2ea;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 20px;
@@ -101,14 +101,14 @@ button:active {
     gap: 10px;
     font-size: 1.2em;
     font-weight: 600;
-    color: #333;
+    color: var(--fg);
 }
 
 #currentPlayer {
     text-align: center;
     font-size: 1.1em;
     font-weight: 600;
-    color: #4b6584;
+    color: var(--accent-strong);
     margin-bottom: 5px;
 }
 

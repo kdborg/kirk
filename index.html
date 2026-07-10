@@ -3,11 +3,15 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Kirk D. Brown</title>
+        <script src="/theme.js"></script>
+        <link rel="stylesheet" href="/theme.css" />
         <style>
             body {
                 font-family: Arial, sans-serif;
                 margin: 0;
                 padding: 0;
+                background: var(--bg);
+                color: var(--fg);
             }
 
             h1, h2 {
@@ -21,14 +25,15 @@
                 align-items: center;
                 margin: 0;
                 padding: 1rem 1.5rem;
-                background-color: lightsteelblue;
+                background-color: var(--header-bg);
+                color: var(--header-fg);
             }
 
             header a {
                 display: inline-flex;
                 align-items: center;
                 gap: 0.4rem;
-                color: black;
+                color: var(--header-fg);
             }
 
             header a svg {
@@ -72,9 +77,9 @@
                 align-items: center;
                 gap: 0.4rem;
                 padding: 0.35rem 0.75rem;
-                background: #eef2f7;
-                color: #1f2933;
-                border: 1px solid #dbe2ea;
+                background: var(--surface-2);
+                color: var(--fg);
+                border: 1px solid var(--border);
                 border-radius: 999px;
                 font-size: 0.85rem;
                 line-height: 1;
@@ -82,7 +87,7 @@
             }
 
             .skills li:hover {
-                background: #e3e9f2;
+                border-color: var(--border-strong);
             }
 
             .skills li svg {
@@ -117,10 +122,10 @@
             .card {
                 display: block;
                 height: 100%;
-                background: #fff;
-                color: #1f2933;
+                background: var(--surface);
+                color: var(--fg);
                 text-decoration: none;
-                border: 1px solid #dbe2ea;
+                border: 1px solid var(--border);
                 border-radius: 12px;
                 overflow: hidden;
                 transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
@@ -128,8 +133,8 @@
 
             .card:hover,
             .card:focus-visible {
-                border-color: #b0c4de;
-                box-shadow: 0 8px 24px rgba(31, 41, 51, 0.12);
+                border-color: var(--border-strong);
+                box-shadow: 0 8px 24px var(--shadow);
                 transform: translateY(-2px);
             }
 
@@ -139,8 +144,20 @@
                 height: auto;
                 aspect-ratio: 8 / 5;
                 object-fit: cover;
-                background: #f4f6f9;
-                border-bottom: 1px solid #dbe2ea;
+                background: var(--surface-3);
+                border-bottom: 1px solid var(--border);
+            }
+
+            /* Swap card screenshots with the theme. The hidden image stays
+               display:none, so lazy-loading defers it until the theme is used. */
+            .card .thumb-dark {
+                display: none;
+            }
+            html[data-theme='dark'] .card .thumb-light {
+                display: none;
+            }
+            html[data-theme='dark'] .card .thumb-dark {
+                display: block;
             }
 
             .card-body {
@@ -151,14 +168,14 @@
                 margin: 0 0 0.35rem;
                 font-size: 1.05rem;
                 font-weight: 600;
-                color: #3b5169;
+                color: var(--heading);
             }
 
             .card-body p {
                 margin: 0;
                 font-size: 0.9rem;
                 line-height: 1.45;
-                color: #52606d;
+                color: var(--fg-muted);
             }
         </style>
     </head>
@@ -329,14 +346,33 @@
         </svg>
         <header>
             <h1><a href="/">Kirk D. Brown</a></h1>
-            <p>
+            <div class="header-actions">
                 <a
                     href="https://www.linkedin.com/in/kirk-d-brown/"
                     aria-label="LinkedIn"
                     ><svg aria-hidden="true"><use href="#ic-linkedin" /></svg
-                    ></a
+                ></a>
+                <button
+                    type="button"
+                    class="theme-toggle"
+                    aria-label="Toggle dark mode"
                 >
-            </p>
+                    <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg>
+                    <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg>
+                </button>
+            </div>
         </header>
 
         <section>
@@ -487,7 +523,16 @@
                 <li>
                     <a class="card" href="kirkle/">
                         <img
+                            class="thumb thumb-light"
                             src="images/kirkle.png"
+                            alt=""
+                            width="640"
+                            height="400"
+                            loading="lazy"
+                        />
+                        <img
+                            class="thumb thumb-dark"
+                            src="images/kirkle-dark.png"
                             alt=""
                             width="640"
                             height="400"
@@ -505,7 +550,16 @@
                 <li>
                     <a class="card" href="ai/reversi3d/">
                         <img
+                            class="thumb thumb-light"
                             src="images/reversi3d.png"
+                            alt=""
+                            width="640"
+                            height="400"
+                            loading="lazy"
+                        />
+                        <img
+                            class="thumb thumb-dark"
+                            src="images/reversi3d-dark.png"
                             alt=""
                             width="640"
                             height="400"
@@ -523,7 +577,16 @@
                 <li>
                     <a class="card" href="ai/reversi2d/">
                         <img
+                            class="thumb thumb-light"
                             src="images/reversi2d.png"
+                            alt=""
+                            width="640"
+                            height="400"
+                            loading="lazy"
+                        />
+                        <img
+                            class="thumb thumb-dark"
+                            src="images/reversi2d-dark.png"
                             alt=""
                             width="640"
                             height="400"
@@ -541,7 +604,16 @@
                 <li>
                     <a class="card" href="ai/spherical/">
                         <img
+                            class="thumb thumb-light"
                             src="images/spherical.png"
+                            alt=""
+                            width="640"
+                            height="400"
+                            loading="lazy"
+                        />
+                        <img
+                            class="thumb thumb-dark"
+                            src="images/spherical-dark.png"
                             alt=""
                             width="640"
                             height="400"

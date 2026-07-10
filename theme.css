@@ -1,0 +1,113 @@
+/* Shared theme tokens + the header dark-mode toggle button.
+   Loaded by every page. Surfaces reference these variables so a single
+   [data-theme="dark"] switch re-themes the whole site. */
+
+:root {
+    --bg: #ffffff;
+    --fg: #1f2933;
+    --fg-muted: #52606d;
+    --heading: #3b5169;
+
+    --header-bg: #b0c4de; /* lightsteelblue */
+    --header-fg: #1a1a1a;
+
+    --surface: #ffffff;
+    --surface-2: #eef2f7;
+    --surface-3: #f4f6f9;
+
+    --border: #dbe2ea;
+    --border-strong: #b0c4de;
+
+    --accent: #4b6584;
+    --accent-strong: #3b5169;
+    --on-accent: #ffffff;
+
+    --shadow: rgba(31, 41, 51, 0.12);
+
+    /* Translucent panels floating over a WebGL canvas. */
+    --panel-bg: rgba(255, 255, 255, 0.9);
+    --scrim-bg: rgba(255, 255, 255, 0.96);
+
+    /* WebGL scene background, read by three.js pages. */
+    --scene-bg: #f4f6f9;
+
+    color-scheme: light;
+}
+
+html[data-theme='dark'] {
+    --bg: #14181f;
+    --fg: #e4e7eb;
+    --fg-muted: #9aa5b1;
+    --heading: #b3c1d1;
+
+    --header-bg: #263042;
+    --header-fg: #e8ecf1;
+
+    --surface: #1e242e;
+    --surface-2: #262e39;
+    --surface-3: #1a1f28;
+
+    --border: #333c48;
+    --border-strong: #45505f;
+
+    --accent: #55708f;
+    --accent-strong: #6b86a5;
+    --on-accent: #ffffff;
+
+    --shadow: rgba(0, 0, 0, 0.5);
+
+    --panel-bg: rgba(24, 29, 37, 0.9);
+    --scrim-bg: rgba(18, 22, 28, 0.97);
+
+    --scene-bg: #14181f;
+
+    color-scheme: dark;
+}
+
+/* Right-hand cluster in the header: toggle + LinkedIn. */
+.header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--header-fg);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--header-fg);
+    cursor: pointer;
+    line-height: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.theme-toggle:hover {
+    background: rgba(127, 127, 127, 0.18);
+}
+
+.theme-toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Show the icon for the theme you'd switch TO. */
+.theme-toggle .icon-sun {
+    display: none;
+}
+html[data-theme='dark'] .theme-toggle .icon-moon {
+    display: none;
+}
+html[data-theme='dark'] .theme-toggle .icon-sun {
+    display: inline;
+}
