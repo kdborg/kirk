@@ -163,6 +163,8 @@ button:active {
 }
 
 .coord {
+    display: none;
+    visibility: hidden;
     position: absolute;
     font-size: 8px;
     color: rgba(255, 255, 255, 0.3);
