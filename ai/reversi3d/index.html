@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Reversi</title>
+    <link rel="stylesheet" href="../site-header.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background-color: #fff;
+            color: #1f2933;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #game-container {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            position: relative;
+        }
+
+        #game-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #ui-overlay > * {
+            pointer-events: auto;
+        }
+
+        #status-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dbe2ea;
+            color: #1f2933;
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        #status-panel h2 {
+            margin-bottom: 15px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #3b5169;
+        }
+
+        #score, #current-player, #legal-moves-count {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: #4b6584;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #3b5169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(75, 101, 132, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #cbd2d9;
+            color: #f5f7fa;
+            cursor: not-allowed;
+            opacity: 1;
+        }
+
+        #message-display {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #dbe2ea;
+            color: #1f2933;
+            box-shadow: 0 4px 14px rgba(31, 41, 51, 0.12);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        #message-display.show {
+            opacity: 1;
+        }
+
+        #menu-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.96);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+        }
+
+        #menu-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #menu-screen h2 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #3b5169;
+        }
+
+        #menu-screen p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            color: #52606d;
+        }
+
+        .menu-btn {
+            min-width: 250px;
+            padding: 18px 36px;
+            margin: 10px;
+            font-size: 20px;
+        }
+
+        #speed-controls {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dbe2ea;
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        #speed-controls.show {
+            display: block;
+        }
+
+        #speed-controls label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #52606d;
+        }
+
+        #speed-slider {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="/">Kirk D. Brown</a></h1>
+        <p>
+            <a href="https://www.linkedin.com/in/kirk-d-brown/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </p>
+    </header>
+
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+
+        <div id="ui-overlay">
+            <div id="status-panel">
+                <h2>3D Reversi</h2>
+                <div id="score">Black: 4 | White: 4</div>
+                <div id="current-player">Current: <span id="current-player-name">Black</span></div>
+                <div id="legal-moves-count">Legal moves: 0</div>
+            </div>
+
+            <div id="controls">
+                <button id="reset-btn">Reset Game</button>
+                <button id="new-game-btn">New Game</button>
+            </div>
+
+            <div id="speed-controls">
+                <label for="speed-slider">AI Speed: <span id="speed-value">Normal</span></label>
+                <input type="range" id="speed-slider" min="0" max="2" value="1" step="1">
+            </div>
+
+            <div id="message-display"></div>
+        </div>
+
+        <div id="menu-screen">
+            <h2>3D Reversi</h2>
+            <p>Choose game mode:</p>
+            <button id="pvp-btn" class="menu-btn">Two Players</button>
+            <button id="pve-btn" class="menu-btn">Player vs AI</button>
+            <button id="aivai-btn" class="menu-btn">AI vs AI</button>
+        </div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="game.js"></script>
+</body>
+</html>

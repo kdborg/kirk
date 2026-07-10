@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spherical Reversi</title>
+    <link rel="stylesheet" href="../site-header.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #fff;
+            overflow: hidden;
+            color: #1f2933;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Positioning context for the canvas and its overlays. */
+        #stage {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+        }
+
+        #canvas-container {
+            position: absolute;
+            inset: 0;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #dbe2ea;
+            box-shadow: 0 4px 14px rgba(31, 41, 51, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 250px;
+        }
+
+        #game-ui h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #3b5169;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .player-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .piece-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #52606d;
+        }
+
+        .black-piece {
+            background: #000;
+        }
+
+        .white-piece {
+            background: #fff;
+        }
+
+        .current-player {
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            background: #4b6584;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #3b5169;
+        }
+
+        button:disabled {
+            background: #cbd2d9;
+            color: #f5f7fa;
+            cursor: not-allowed;
+        }
+
+        .player-config {
+            margin: 15px 0;
+            padding: 10px;
+            background: #eef2f7;
+            border: 1px solid #dbe2ea;
+            border-radius: 5px;
+        }
+
+        .player-config h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #3b5169;
+        }
+
+        .config-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        select {
+            background: #fff;
+            color: #1f2933;
+            border: 1px solid #b8c4d1;
+            padding: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            flex: 1;
+        }
+
+        select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .instructions {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #52606d;
+            line-height: 1.5;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid #dbe2ea;
+            box-shadow: 0 10px 40px rgba(31, 41, 51, 0.18);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        #game-over h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #3b5169;
+        }
+
+        #game-over .final-score {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <h1><a href="/">Kirk D. Brown</a></h1>
+        <p>
+            <a href="https://www.linkedin.com/in/kirk-d-brown/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        </p>
+    </header>
+
+    <div id="stage">
+    <div id="canvas-container"></div>
+
+    <div id="game-ui">
+        <h2>Spherical Reversi</h2>
+
+        <div class="score-container">
+            <div class="player-score">
+                <div class="piece-indicator black-piece"></div>
+                <span id="black-score">2</span>
+            </div>
+            <div class="player-score">
+                <div class="piece-indicator white-piece"></div>
+                <span id="white-score">2</span>
+            </div>
+        </div>
+
+        <div class="current-player">
+            Current: <span id="current-player">Black</span>
+        </div>
+
+        <div class="player-config">
+            <h3>Black Player</h3>
+            <div class="config-row">
+                <select id="black-type">
+                    <option value="human">Human</option>
+                    <option value="ai">AI</option>
+                </select>
+                <select id="black-difficulty" disabled>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="player-config">
+            <h3>White Player</h3>
+            <div class="config-row">
+                <select id="white-type">
+                    <option value="human">Human</option>
+                    <option value="ai">AI</option>
+                </select>
+                <select id="white-difficulty" disabled>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="new-game">New Game</button>
+            <button id="pass-turn" disabled>Pass Turn</button>
+            <button id="toggle-rotation">Pause Rotation</button>
+        </div>
+
+        <div class="instructions">
+            <strong>How to play:</strong><br>
+            • Click and drag to rotate the sphere<br>
+            • Click a highlighted tile to place a piece<br>
+            • Capture opponent pieces by flanking them<br>
+            • Game ends when no moves are available<br>
+            • Set players to Human or AI with difficulty levels
+        </div>
+    </div>
+
+    <div id="game-over">
+        <h2 id="winner-text">Game Over</h2>
+        <div class="final-score" id="final-score"></div>
+        <button id="play-again">Play Again</button>
+    </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Game state
+        const PLAYER_BLACK = 1;
+        const PLAYER_WHITE = 2;
+        const EMPTY = 0;
+
+        class SphericalReversi {
+            constructor() {
+                this.currentPlayer = PLAYER_BLACK;
+                this.gameOver = false;
+                this.consecutivePasses = 0;
+                this.rotationEnabled = true;
+
+                // Player configuration
+                this.playerConfig = {
+                    [PLAYER_BLACK]: { type: 'human', difficulty: 'easy' },
+                    [PLAYER_WHITE]: { type: 'human', difficulty: 'easy' }
+                };
+
+                // Create subdivisions of the sphere using icosahedron
+                this.subdivisions = 3;
+                this.tiles = [];
+                this.board = new Map(); // tile index -> player
+
+                this.initThreeJS();
+                this.createSphericalBoard();
+                this.initWorker();
+                this.initGame();
+                this.setupEventListeners();
+                this.animate();
+            }
+
+            initWorker() {
+                // Initialize AI worker
+                this.aiWorker = new Worker('ai-worker.js');
+
+                // Listen for worker responses
+                this.aiWorker.addEventListener('message', (e) => {
+                    const { action, tileIndex } = e.data;
+
+                    if (action === 'move') {
+                        this.makeMove(tileIndex);
+                    } else if (action === 'pass') {
+                        this.passTurn();
+                    }
+                });
+
+                // Send tile positions to worker (only needed once)
+                const tilePositions = this.tiles.map(tile => ({
+                    x: tile.position.x,
+                    y: tile.position.y,
+                    z: tile.position.z
+                }));
+
+                this.aiWorker.postMessage({
+                    gameState: {
+                        tilePositions
+                    },
+                    difficulty: 'easy',
+                    currentPlayer: PLAYER_BLACK
+                });
+            }
+
+            initThreeJS() {
+                // Scene setup
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0xf4f6f9);
+
+                // The canvas sits below the site header, so size to its container.
+                this.container = document.getElementById('canvas-container');
+
+                // Camera setup
+                this.camera = new THREE.PerspectiveCamera(
+                    75,
+                    this.container.clientWidth / this.container.clientHeight,
+                    0.1,
+                    1000
+                );
+                this.camera.position.z = 5;
+
+                // Renderer setup
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.container.appendChild(this.renderer.domElement);
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                this.scene.add(ambientLight);
+
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 5, 5);
+                this.scene.add(directionalLight);
+
+                const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
+                backLight.position.set(-5, -5, -5);
+                this.scene.add(backLight);
+
+                // Raycaster for mouse picking
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+
+                // Sphere group for rotation
+                this.sphereGroup = new THREE.Group();
+                this.scene.add(this.sphereGroup);
+
+                // Window resize handling
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                });
+            }
+
+            createSphericalBoard() {
+                // Create icosphere for evenly distributed tiles
+                const geometry = new THREE.IcosahedronGeometry(2, this.subdivisions);
+                const positions = geometry.attributes.position.array;
+                const faces = [];
+
+                // Group vertices into faces (triangles)
+                for (let i = 0; i < positions.length; i += 9) {
+                    const v1 = new THREE.Vector3(positions[i], positions[i + 1], positions[i + 2]);
+                    const v2 = new THREE.Vector3(positions[i + 3], positions[i + 4], positions[i + 5]);
+                    const v3 = new THREE.Vector3(positions[i + 6], positions[i + 7], positions[i + 8]);
+
+                    // Calculate center of triangle
+                    const center = new THREE.Vector3()
+                        .add(v1)
+                        .add(v2)
+                        .add(v3)
+                        .divideScalar(3)
+                        .normalize()
+                        .multiplyScalar(2);
+
+                    faces.push({ center, v1, v2, v3, index: faces.length });
+                }
+
+                // Create tile meshes
+                faces.forEach((face, index) => {
+                    const tileGeometry = new THREE.CircleGeometry(0.15, 16);
+                    const tileMaterial = new THREE.MeshPhongMaterial({
+                        color: 0x2d5016,
+                        side: THREE.DoubleSide
+                    });
+                    const tile = new THREE.Mesh(tileGeometry, tileMaterial);
+
+                    // Position and orient tile
+                    tile.position.copy(face.center);
+                    tile.lookAt(0, 0, 0);
+                    tile.rotateX(Math.PI);
+
+                    tile.userData = { index, type: 'tile' };
+                    this.sphereGroup.add(tile);
+                    this.tiles.push(tile);
+
+                    // Create outline
+                    const outlineGeometry = new THREE.RingGeometry(0.15, 0.17, 16);
+                    const outlineMaterial = new THREE.MeshBasicMaterial({
+                        color: 0x000000,
+                        side: THREE.DoubleSide
+                    });
+                    const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                    outline.position.copy(face.center).multiplyScalar(0.995);
+                    outline.lookAt(0, 0, 0);
+                    outline.rotateX(Math.PI);
+                    this.sphereGroup.add(outline);
+                });
+
+                // Build adjacency map
+                this.adjacency = new Map();
+                faces.forEach((face, i) => {
+                    const neighbors = [];
+                    faces.forEach((otherFace, j) => {
+                        if (i !== j) {
+                            const distance = face.center.distanceTo(otherFace.center);
+                            if (distance < 0.7) { // Threshold for neighbors
+                                neighbors.push(j);
+                            }
+                        }
+                    });
+                    this.adjacency.set(i, neighbors);
+                });
+            }
+
+            initGame() {
+                // Clear board
+                this.board.clear();
+                this.gameOver = false;
+                this.consecutivePasses = 0;
+                this.currentPlayer = PLAYER_BLACK;
+
+                // Find tiles facing the camera (highest z values) for initial setup
+                const centerTiles = this.tiles
+                    .map((tile, index) => ({ index, z: tile.position.z }))
+                    .sort((a, b) => b.z - a.z)
+                    .slice(0, 4);
+
+                // Place initial pieces
+                this.board.set(centerTiles[0].index, PLAYER_BLACK);
+                this.board.set(centerTiles[1].index, PLAYER_WHITE);
+                this.board.set(centerTiles[2].index, PLAYER_WHITE);
+                this.board.set(centerTiles[3].index, PLAYER_BLACK);
+
+                this.updateBoard();
+                this.updateUI();
+
+                // Trigger AI move if Black is AI
+                if (this.isAIPlayer(this.currentPlayer)) {
+                    this.makeAIMove();
+                }
+            }
+
+            getValidMoves() {
+                const validMoves = new Set();
+
+                for (let i = 0; i < this.tiles.length; i++) {
+                    if (this.board.get(i) === undefined) {
+                        if (this.getFlippedPieces(i, this.currentPlayer).length > 0) {
+                            validMoves.add(i);
+                        }
+                    }
+                }
+
+                return validMoves;
+            }
+
+            getFlippedPieces(tileIndex, player) {
+                const flipped = [];
+                const opponent = player === PLAYER_BLACK ? PLAYER_WHITE : PLAYER_BLACK;
+                const neighbors = this.adjacency.get(tileIndex) || [];
+
+                // Check each direction from this tile
+                neighbors.forEach(startNeighbor => {
+                    if (this.board.get(startNeighbor) === opponent) {
+                        const tempFlipped = [startNeighbor];
+                        const direction = this.getDirection(tileIndex, startNeighbor);
+
+                        let current = startNeighbor;
+                        while (true) {
+                            const next = this.getNextInDirection(current, direction);
+                            if (next === -1) break;
+
+                            const piece = this.board.get(next);
+                            if (piece === undefined) break;
+                            if (piece === player) {
+                                flipped.push(...tempFlipped);
+                                break;
+                            }
+                            if (piece === opponent) {
+                                tempFlipped.push(next);
+                                current = next;
+                            }
+                        }
+                    }
+                });
+
+                return flipped;
+            }
+
+            getDirection(from, to) {
+                const fromPos = this.tiles[from].position;
+                const toPos = this.tiles[to].position;
+                return toPos.clone().sub(fromPos).normalize();
+            }
+
+            getNextInDirection(current, direction) {
+                const currentPos = this.tiles[current].position;
+                const neighbors = this.adjacency.get(current) || [];
+
+                let bestMatch = -1;
+                let bestDot = -1;
+
+                neighbors.forEach(neighbor => {
+                    const neighborPos = this.tiles[neighbor].position;
+                    const neighborDir = neighborPos.clone().sub(currentPos).normalize();
+                    const dot = neighborDir.dot(direction);
+
+                    if (dot > bestDot && dot > 0.5) {
+                        bestDot = dot;
+                        bestMatch = neighbor;
+                    }
+                });
+
+                return bestMatch;
+            }
+
+            makeMove(tileIndex) {
+                if (this.gameOver) return false;
+                if (this.board.get(tileIndex) !== undefined) return false;
+
+                const flipped = this.getFlippedPieces(tileIndex, this.currentPlayer);
+                if (flipped.length === 0) return false;
+
+                // Place piece
+                this.board.set(tileIndex, this.currentPlayer);
+
+                // Flip opponent pieces
+                flipped.forEach(index => {
+                    this.board.set(index, this.currentPlayer);
+                });
+
+                this.consecutivePasses = 0;
+                this.switchPlayer();
+                this.updateBoard();
+                this.updateUI();
+                this.checkGameOver();
+
+                // Trigger AI move if next player is AI
+                if (this.isAIPlayer(this.currentPlayer) && !this.gameOver) {
+                    this.makeAIMove();
+                }
+
+                return true;
+            }
+
+            passTurn() {
+                this.consecutivePasses++;
+                this.switchPlayer();
+                this.updateUI();
+                this.checkGameOver();
+
+                // Trigger AI move if next player is AI
+                if (this.isAIPlayer(this.currentPlayer) && !this.gameOver) {
+                    this.makeAIMove();
+                }
+            }
+
+            switchPlayer() {
+                this.currentPlayer = this.currentPlayer === PLAYER_BLACK ? PLAYER_WHITE : PLAYER_BLACK;
+            }
+
+            checkGameOver() {
+                const validMoves = this.getValidMoves();
+
+                if (validMoves.size === 0) {
+                    if (this.consecutivePasses >= 1) {
+                        this.endGame();
+                    } else {
+                        document.getElementById('pass-turn').disabled = false;
+                    }
+                } else {
+                    document.getElementById('pass-turn').disabled = true;
+                }
+            }
+
+            endGame() {
+                this.gameOver = true;
+                const scores = this.getScores();
+
+                let winnerText = '';
+                if (scores.black > scores.white) {
+                    winnerText = 'Black Wins!';
+                } else if (scores.white > scores.black) {
+                    winnerText = 'White Wins!';
+                } else {
+                    winnerText = "It's a Tie!";
+                }
+
+                document.getElementById('winner-text').textContent = winnerText;
+                document.getElementById('final-score').textContent =
+                    `Black: ${scores.black} - White: ${scores.white}`;
+                document.getElementById('game-over').style.display = 'block';
+            }
+
+            getScores() {
+                let black = 0, white = 0;
+                this.board.forEach(player => {
+                    if (player === PLAYER_BLACK) black++;
+                    if (player === PLAYER_WHITE) white++;
+                });
+                return { black, white };
+            }
+
+            updateBoard() {
+                // Remove all existing pieces
+                this.sphereGroup.children.forEach(child => {
+                    if (child.userData.type === 'piece') {
+                        this.sphereGroup.remove(child);
+                    }
+                });
+
+                // Add pieces
+                this.board.forEach((player, index) => {
+                    const tile = this.tiles[index];
+                    const pieceGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+                    const pieceMaterial = new THREE.MeshPhongMaterial({
+                        color: player === PLAYER_BLACK ? 0x000000 : 0xffffff,
+                        shininess: 100
+                    });
+                    const piece = new THREE.Mesh(pieceGeometry, pieceMaterial);
+
+                    const pos = tile.position.clone().normalize().multiplyScalar(2.15);
+                    piece.position.copy(pos);
+                    piece.userData = { type: 'piece' };
+
+                    this.sphereGroup.add(piece);
+                });
+
+                // Highlight valid moves
+                const validMoves = this.getValidMoves();
+                this.tiles.forEach((tile, index) => {
+                    if (validMoves.has(index)) {
+                        tile.material.color.setHex(0x4CAF50);
+                        tile.material.emissive = new THREE.Color(0x2d5016);
+                    } else if (this.board.get(index) === undefined) {
+                        tile.material.color.setHex(0x2d5016);
+                        tile.material.emissive = new THREE.Color(0x000000);
+                    }
+                });
+            }
+
+            updateUI() {
+                const scores = this.getScores();
+                document.getElementById('black-score').textContent = scores.black;
+                document.getElementById('white-score').textContent = scores.white;
+                document.getElementById('current-player').textContent =
+                    this.currentPlayer === PLAYER_BLACK ? 'Black' : 'White';
+            }
+
+            // AI Methods
+            isAIPlayer(player) {
+                return this.playerConfig[player].type === 'ai';
+            }
+
+            makeAIMove() {
+                if (this.gameOver) return;
+
+                const validMoves = this.getValidMoves();
+                const difficulty = this.playerConfig[this.currentPlayer].difficulty;
+
+                // Prepare game state for worker
+                const gameState = {
+                    board: Array.from(this.board.entries()),
+                    adjacency: Array.from(this.adjacency.entries()),
+                    validMoves: Array.from(validMoves),
+                    tilesCount: this.tiles.length
+                };
+
+                // Send to worker for computation
+                setTimeout(() => {
+                    this.aiWorker.postMessage({
+                        gameState,
+                        difficulty,
+                        currentPlayer: this.currentPlayer
+                    });
+                }, 500);
+            }
+
+            setupEventListeners() {
+                let isDragging = false;
+                let previousMousePosition = { x: 0, y: 0 };
+
+                this.renderer.domElement.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    previousMousePosition = { x: e.clientX, y: e.clientY };
+                });
+
+                this.renderer.domElement.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        const deltaX = e.clientX - previousMousePosition.x;
+                        const deltaY = e.clientY - previousMousePosition.y;
+
+                        this.sphereGroup.rotation.y += deltaX * 0.01;
+                        this.sphereGroup.rotation.x += deltaY * 0.01;
+
+                        previousMousePosition = { x: e.clientX, y: e.clientY };
+                    }
+                });
+
+                this.renderer.domElement.addEventListener('mouseup', () => {
+                    isDragging = false;
+                });
+
+                this.renderer.domElement.addEventListener('click', (e) => {
+                    if (isDragging) return;
+
+                    // Don't allow human moves during AI turn
+                    if (this.isAIPlayer(this.currentPlayer)) return;
+
+                    // Measure against the canvas, not the window: the header offsets it.
+                    const rect = this.renderer.domElement.getBoundingClientRect();
+                    this.mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                    this.mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                    this.raycaster.setFromCamera(this.mouse, this.camera);
+                    const intersects = this.raycaster.intersectObjects(this.tiles);
+
+                    if (intersects.length > 0) {
+                        const tileIndex = intersects[0].object.userData.index;
+                        this.makeMove(tileIndex);
+                    }
+                });
+
+                document.getElementById('new-game').addEventListener('click', () => {
+                    this.initGame();
+                    document.getElementById('game-over').style.display = 'none';
+                });
+
+                document.getElementById('play-again').addEventListener('click', () => {
+                    this.initGame();
+                    document.getElementById('game-over').style.display = 'none';
+                });
+
+                document.getElementById('pass-turn').addEventListener('click', () => {
+                    this.passTurn();
+                });
+
+                document.getElementById('toggle-rotation').addEventListener('click', () => {
+                    this.rotationEnabled = !this.rotationEnabled;
+                    const button = document.getElementById('toggle-rotation');
+                    button.textContent = this.rotationEnabled ? 'Pause Rotation' : 'Resume Rotation';
+                });
+
+                // Player configuration event listeners
+                document.getElementById('black-type').addEventListener('change', (e) => {
+                    this.playerConfig[PLAYER_BLACK].type = e.target.value;
+                    document.getElementById('black-difficulty').disabled = e.target.value === 'human';
+                });
+
+                document.getElementById('black-difficulty').addEventListener('change', (e) => {
+                    this.playerConfig[PLAYER_BLACK].difficulty = e.target.value;
+                });
+
+                document.getElementById('white-type').addEventListener('change', (e) => {
+                    this.playerConfig[PLAYER_WHITE].type = e.target.value;
+                    document.getElementById('white-difficulty').disabled = e.target.value === 'human';
+                });
+
+                document.getElementById('white-difficulty').addEventListener('change', (e) => {
+                    this.playerConfig[PLAYER_WHITE].difficulty = e.target.value;
+                });
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                // Gentle auto-rotation when enabled
+                if (this.rotationEnabled) {
+                    this.sphereGroup.rotation.y += 0.001;
+                }
+
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            new SphericalReversi();
+        });
+    </script>
+</body>
+</html>
