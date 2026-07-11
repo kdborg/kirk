@@ -14,13 +14,43 @@
                 color: var(--fg);
             }
 
-            h1, h2 {
-                font-weight: 400;
-            }
-
             section {
                 margin: 0;
-                padding: 1rem 1.5rem;
+                padding: 2.75rem 1.5rem;
+            }
+
+            /* Alternating full-width bands separate the sections. */
+            section:nth-of-type(2n) {
+                background: var(--surface-3);
+                border-top: 1px solid var(--border);
+                border-bottom: 1px solid var(--border);
+            }
+
+            /* Centered, width-constrained content. */
+            .container,
+            .about {
+                max-width: 1040px;
+                margin: 0 auto;
+            }
+
+            /* Section headings: accent tick + steel-blue, matching the site. */
+            section h2 {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                margin: 0 0 1.1rem;
+                font-size: 1.55rem;
+                font-weight: 600;
+                color: var(--heading);
+            }
+
+            section h2::before {
+                content: "";
+                flex: none;
+                width: 5px;
+                height: 1.05em;
+                background: var(--accent);
+                border-radius: 3px;
             }
 
             p {
@@ -514,6 +544,7 @@
         </section>
 
         <section>
+            <div class="container">
             <h2>Projects</h2>
             <ul class="cards">
                 <li>
@@ -564,7 +595,7 @@
                         <div class="card-body">
                             <h3>Wordle Assist</h3>
                             <p>
-                                A command-line tool for solving Wordle puzzles.  This was created by Claude Code and based off of a C++ implementation.
+                                A command-line tool for solving Wordle puzzles.  This was created in Rust by Claude Code and based off of a C++ implementation.
                             </p>
                         </div>
                     </a>
@@ -650,6 +681,7 @@
                     </a>
                 </li>
             </ul>
+            </div>
         </section>
     </body>
 </html>
