@@ -1,4 +1,4 @@
-/* Shared theme tokens + the header dark-mode toggle button.
+/* Shared theme tokens + the site header.
    Loaded by every page. Surfaces reference these variables so a single
    [data-theme="dark"] switch re-themes the whole site. */
 
@@ -9,7 +9,11 @@
     --heading: #3b5169;
 
     --header-bg: #b0c4de; /* lightsteelblue */
+    --header-bg-2: #a1b6d4; /* gradient end, a touch deeper */
     --header-fg: #1a1a1a;
+    --header-border: #93a9c9;
+    --header-ctrl-border: rgba(26, 26, 26, 0.22);
+    --header-ctrl-hover: rgba(255, 255, 255, 0.4);
 
     --surface: #ffffff;
     --surface-2: #eef2f7;
@@ -41,7 +45,11 @@ html[data-theme='dark'] {
     --heading: #b3c1d1;
 
     --header-bg: #263042;
+    --header-bg-2: #1f2836;
     --header-fg: #e8ecf1;
+    --header-border: #384657;
+    --header-ctrl-border: rgba(232, 236, 241, 0.22);
+    --header-ctrl-hover: rgba(255, 255, 255, 0.1);
 
     --surface: #1e242e;
     --surface-2: #262e39;
@@ -64,36 +72,148 @@ html[data-theme='dark'] {
     color-scheme: dark;
 }
 
-/* Right-hand cluster in the header: toggle + LinkedIn. */
-.header-actions {
-    display: inline-flex;
+/* ===================== Site header ===================== */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--header-bg);
+    background-image: linear-gradient(
+        180deg,
+        var(--header-bg) 0%,
+        var(--header-bg-2) 100%
+    );
+    border-bottom: 1px solid var(--header-border);
+    color: var(--header-fg);
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    line-height: normal;
+    transition: box-shadow 0.2s ease;
 }
 
-.theme-toggle {
+/* Gains a shadow once the page is scrolled (toggled by theme.js). */
+html.scrolled .site-header {
+    box-shadow: 0 3px 12px var(--shadow);
+}
+
+/* Wordmark: outline monogram + name/tagline */
+.site-header .brand {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: var(--header-fg);
+}
+
+.site-header .monogram {
+    flex: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
+    border: 2px solid currentColor;
+    border-radius: 11px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.site-header .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.site-header .brand:hover,
+.site-header .brand:focus-visible {
+    background: transparent;
+}
+
+.site-header .brand-name {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+}
+
+.site-header .brand:hover .brand-name,
+.site-header .brand:focus-visible .brand-name {
+    text-decoration: underline;
+}
+
+.site-header .tagline {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+/* Right-hand cluster: GitHub, LinkedIn, theme toggle — unified icon buttons */
+.header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-actions a[href],
+.header-actions .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     padding: 0;
-    border: 1px solid var(--header-fg);
+    border: 1px solid var(--header-ctrl-border);
     border-radius: 50%;
     background: transparent;
     color: var(--header-fg);
     cursor: pointer;
     line-height: 0;
     -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease,
+        color 0.15s ease;
 }
 
-.theme-toggle:hover {
-    background: rgba(127, 127, 127, 0.18);
+.header-actions a[href]:hover,
+.header-actions a[href]:focus-visible,
+.header-actions .theme-toggle:hover,
+.header-actions .theme-toggle:focus-visible {
+    background: var(--header-ctrl-hover);
+    border-color: var(--header-fg);
 }
 
-.theme-toggle svg {
+/* LinkedIn keeps a brand-blue pop on hover. */
+.header-actions a[aria-label='LinkedIn']:hover {
+    color: #0a66c2;
+}
+
+.header-actions svg {
     width: 18px;
     height: 18px;
+    flex: none;
+}
+
+/* Social marks are monochrome, following the header text colour. */
+.header-actions a svg {
+    fill: currentColor;
+}
+
+/* The theme toggle is stroke-based. */
+.header-actions .theme-toggle svg {
     fill: none;
     stroke: currentColor;
     stroke-width: 2;

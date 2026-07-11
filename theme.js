@@ -63,4 +63,11 @@
 
     // Exposed for canvas pages that want the current theme on init.
     window.SiteTheme = { current: function () { return root.getAttribute('data-theme'); } };
+
+    // Give the sticky header a shadow once the page is scrolled.
+    function syncScrolled() {
+        root.classList.toggle('scrolled', window.scrollY > 4);
+    }
+    window.addEventListener('scroll', syncScrolled, { passive: true });
+    syncScrolled();
 })();
