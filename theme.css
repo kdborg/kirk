@@ -35,6 +35,10 @@
     /* WebGL scene background, read by three.js pages. */
     --scene-bg: #f4f6f9;
 
+    /* Monogram badge outline: a 2px-stroked regular hexagon, used as a mask so
+       it inherits the header colour. Shape only — not themed. */
+    --monogram-hex: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 42'><polygon points='19,1.5 36.5,11.6 36.5,30.4 19,40.5 1.5,30.4 1.5,11.6' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/></svg>");
+
     color-scheme: light;
 }
 
@@ -116,17 +120,27 @@ html.scrolled .site-header {
 }
 
 .site-header .monogram {
+    position: relative;
     flex: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
+    width: 38px;
     height: 42px;
-    border: 2px solid currentColor;
-    border-radius: 11px;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: -0.02em;
+}
+
+/* Hexagon outline. Masking a ring rather than clipping a border keeps the
+   header gradient visible inside the shape and leaves the letters unclipped. */
+.site-header .monogram::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    -webkit-mask: var(--monogram-hex) center / 100% 100% no-repeat;
+    mask: var(--monogram-hex) center / 100% 100% no-repeat;
 }
 
 .site-header .brand-text {
@@ -162,7 +176,7 @@ html.scrolled .site-header {
     opacity: 0.72;
 }
 
-/* Right-hand cluster: GitHub, LinkedIn, theme toggle — unified icon buttons */
+/* Right-hand cluster: Email, GitHub, LinkedIn, theme toggle — unified icon buttons */
 .header-actions {
     display: inline-flex;
     align-items: center;
