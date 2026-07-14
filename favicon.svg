@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <!-- The brand monogram's hexagon: heavy side chevrons, light top and bottom
+         rules. Strokes are proportionally heavier than the header badge so the
+         shape survives at 16px. Ink follows the browser/OS colour scheme. -->
+    <style>
+        path { fill: #1a1a1a; }
+        @media (prefers-color-scheme: dark) {
+            path { fill: #e8ecf1; }
+        }
+    </style>
+    <path
+        fill-rule="evenodd"
+        d="M0.60,16.00 L7.32,4.36 L24.68,4.36 L31.40,16.00 L24.68,27.64 L7.32,27.64 Z M12.28,25.84 L19.72,25.84 L25.40,16.00 L19.72,6.16 L12.28,6.16 L6.60,16.00 Z"
+    />
+</svg>

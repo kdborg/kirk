@@ -35,9 +35,12 @@
     /* WebGL scene background, read by three.js pages. */
     --scene-bg: #f4f6f9;
 
-    /* Monogram badge outline: a 2px-stroked regular hexagon, used as a mask so
-       it inherits the header colour. Shape only — not themed. */
-    --monogram-hex: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 38 42'><polygon points='19,1.5 36.5,11.6 36.5,30.4 19,40.5 1.5,30.4 1.5,11.6' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/></svg>");
+    /* Monogram badge outline: a regular flat-top hexagon whose side chevrons are
+       3.5px and whose top and bottom rules are 1.2px, so the badge reads as <KDB>.
+       Drawn as one even-odd ring (outer hexagon minus inner) rather than stacked
+       strokes, which keeps the corners cleanly mitred where the weights change.
+       Used as a mask, so it inherits the header colour. Shape only — not themed. */
+    --monogram-hex: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 37'><path fill='white' fill-rule='evenodd' d='M0.48,18.50 L10.08,1.88 L31.92,1.88 L41.52,18.50 L31.92,35.12 L10.08,35.12 Z M13.42,33.92 L28.58,33.92 L37.48,18.50 L28.58,3.08 L13.42,3.08 L4.52,18.50 Z'/></svg>");
 
     color-scheme: light;
 }
@@ -125,8 +128,8 @@ html.scrolled .site-header {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 42px;
+    width: 42px;
+    height: 37px;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: -0.02em;
