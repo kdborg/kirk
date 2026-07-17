@@ -35,12 +35,17 @@
     /* WebGL scene background, read by three.js pages. */
     --scene-bg: #f4f6f9;
 
-    /* Monogram badge outline: a regular flat-top hexagon whose side chevrons are
-       3.5px and whose top and bottom rules are 1.2px, so the badge reads as <KDB>.
-       Drawn as one even-odd ring (outer hexagon minus inner) rather than stacked
-       strokes, which keeps the corners cleanly mitred where the weights change.
+    /* Monogram badge outline: a flat-top hexagon on 60° angles, stretched so the
+       angled sides are 0.774x the top and bottom edges — the same proportions as
+       favicon.svg, so keep the two in step. Side chevrons are 3.5 and top and
+       bottom rules are 1.2 viewBox units, so the badge reads as <KDB>. Drawn as one
+       even-odd ring (outer hexagon minus inner) rather than stacked strokes, which
+       keeps the corners cleanly mitred where the weights change. The viewBox aspect
+       has to track the .monogram box below, which stretches this mask to 100% 100%
+       and so scales the stroke weights with it — size that box on the 6:5 aspect
+       and the shape holds.
        Used as a mask, so it inherits the header colour. Shape only — not themed. */
-    --monogram-hex: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 37'><path fill='white' fill-rule='evenodd' d='M0.48,18.50 L10.08,1.88 L31.92,1.88 L41.52,18.50 L31.92,35.12 L10.08,35.12 Z M13.42,33.92 L28.58,33.92 L37.48,18.50 L28.58,3.08 L13.42,3.08 L4.52,18.50 Z'/></svg>");
+    --monogram-hex: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 42 35'><path fill='white' fill-rule='evenodd' d='M0.48,17.50 L9.43,1.99 L32.57,1.99 L41.52,17.50 L32.57,33.01 L9.43,33.01 Z M12.78,31.81 L29.22,31.81 L37.48,17.50 L29.22,3.19 L12.78,3.19 L4.52,17.50 Z'/></svg>");
 
     color-scheme: light;
 }
@@ -128,9 +133,9 @@ html.scrolled .site-header {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 37px;
-    font-size: 12px;
+    width: 60px;
+    height: 50px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: -0.02em;
 }
