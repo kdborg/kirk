@@ -1,0 +1,8 @@
+# Hand-authored files copied through verbatim (see addPassthroughCopy in
+# .eleventy.js). Listing them here stops Eleventy from also processing them as
+# templates, which would double-output or mangle the raw HTML.
+index.html
+ai
+kirkle
+README.md
+node_modules

@@ -1,0 +1,18 @@
+---
+layout: base.njk
+---
+<article class="post container">
+    <p class="post-back"><a href="/blog/">← All posts</a></p>
+    <header class="post-header">
+        <h1>{{ title }}</h1>
+        <p class="post-meta">
+            <time datetime="{{ page.date | isoDate }}">{{ page.date | readableDate }}</time>
+            {% if tags %}
+                {% for tag in tags %}{% if tag != "post" %}<span class="tag">{{ tag }}</span>{% endif %}{% endfor %}
+            {% endif %}
+        </p>
+    </header>
+    <div class="post-body">
+        {{ content | safe }}
+    </div>
+</article>

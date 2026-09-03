@@ -1,0 +1,11 @@
+# Eleventy build output — generated, deployed by CI, never committed.
+_site/
+
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# Logs
+npm-debug.log*

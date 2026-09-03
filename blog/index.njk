@@ -1,0 +1,35 @@
+---
+layout: base.njk
+title: Blog
+description: Writing by Kirk D. Brown on software engineering, AI-assisted development, and side projects.
+tags: []
+permalink: /blog/
+---
+<div class="container blog-index">
+    <h1 class="blog-title">Blog</h1>
+    <p class="blog-intro">
+        Notes on software engineering, AI-assisted development, and the odd side
+        project.
+    </p>
+
+    {% set posts = collections.post | reverse %}
+    {% if posts.length %}
+        <ul class="post-list">
+            {% for post in posts %}
+                <li class="post-list-item">
+                    <a class="post-link" href="{{ post.url }}">
+                        <time class="post-date" datetime="{{ post.date | isoDate }}">
+                            {{ post.date | readableDate }}
+                        </time>
+                        <span class="post-list-title">{{ post.data.title }}</span>
+                        {% if post.data.description %}
+                            <span class="post-list-desc">{{ post.data.description }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No posts yet — check back soon.</p>
+    {% endif %}
+</div>

@@ -1,0 +1,235 @@
+/* Blog styles. Layered on top of theme.css, reusing its tokens so the blog
+   themes light/dark along with the rest of the site. Loaded only on blog pages
+   (via base.njk), so it never touches the hand-authored homepage. */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+}
+
+.page {
+    padding: 2.75rem 1.5rem 4rem;
+}
+
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* ===================== Blog index ===================== */
+
+.blog-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0 0 0.5rem;
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.blog-title::before {
+    content: "";
+    flex: none;
+    width: 5px;
+    height: 1.05em;
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+.blog-intro {
+    margin: 0 0 2rem;
+    color: var(--fg-muted);
+    line-height: 1.5;
+}
+
+.post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.post-list-item {
+    margin: 0;
+}
+
+.post-link {
+    display: block;
+    padding: 1rem 1.15rem;
+    background: var(--surface);
+    color: var(--fg);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.post-link:hover,
+.post-link:focus-visible {
+    border-color: var(--border-strong);
+    box-shadow: 0 8px 24px var(--shadow);
+    transform: translateY(-2px);
+}
+
+.post-date {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+}
+
+.post-list-title {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.post-list-desc {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: var(--fg-muted);
+}
+
+/* ===================== Single post ===================== */
+
+.post-back {
+    margin: 0 0 1.5rem;
+    font-size: 0.9rem;
+}
+
+.post-back a {
+    color: var(--accent-strong);
+    text-decoration: none;
+}
+
+.post-back a:hover {
+    text-decoration: underline;
+}
+
+.post-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    line-height: 1.2;
+    color: var(--heading);
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 2rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+}
+
+.post-meta .tag {
+    padding: 0.2rem 0.6rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 600;
+}
+
+/* Post body typography */
+.post-body {
+    line-height: 1.65;
+    font-size: 1.02rem;
+}
+
+.post-body h2 {
+    margin: 2.2rem 0 0.8rem;
+    font-size: 1.4rem;
+    color: var(--heading);
+}
+
+.post-body h3 {
+    margin: 1.8rem 0 0.6rem;
+    font-size: 1.15rem;
+    color: var(--heading);
+}
+
+.post-body p,
+.post-body ul,
+.post-body ol {
+    margin: 0 0 1.15rem;
+}
+
+.post-body ul,
+.post-body ol {
+    padding-left: 1.4rem;
+}
+
+.post-body li {
+    margin-bottom: 0.4rem;
+}
+
+.post-body a {
+    color: var(--accent-strong);
+    text-underline-offset: 2px;
+}
+
+.post-body a:hover {
+    text-decoration-thickness: 2px;
+}
+
+.post-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+
+.post-body blockquote {
+    margin: 0 0 1.15rem;
+    padding: 0.5rem 0 0.5rem 1.1rem;
+    border-left: 3px solid var(--accent);
+    color: var(--fg-muted);
+    font-style: italic;
+}
+
+/* Inline code */
+.post-body code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+    padding: 0.12em 0.4em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+}
+
+/* Code blocks */
+.post-body pre {
+    margin: 0 0 1.15rem;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    line-height: 1.5;
+}
+
+.post-body pre code {
+    padding: 0;
+    background: none;
+    border: 0;
+    font-size: 0.88rem;
+}

@@ -1,0 +1,14 @@
+{
+    "name": "kdborg-site",
+    "version": "1.0.0",
+    "description": "Personal site for kdborg.com, with an Eleventy-generated blog.",
+    "private": true,
+    "scripts": {
+        "start": "eleventy --serve",
+        "build": "eleventy",
+        "clean": "rm -rf _site"
+    },
+    "devDependencies": {
+        "@11ty/eleventy": "^3.1.6"
+    }
+}
