@@ -1,5 +1,5 @@
 ---
-title: "CodeCup - Test Competition Results"
+title: "CodeCup - Test Competition #1 Results"
 description: "CodeCup 2027 Test Competition #1"
 date: 2026-09-05
 tags: ["codecup", "codecup 2027", "ai", "claude code", "claude desktop", "opus", "opus 5", "fable", "fable 5"]
