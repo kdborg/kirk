@@ -3,6 +3,10 @@ layout: base.njk
 title: Blog
 description: Writing by Kirk D. Brown on software engineering, AI-assisted development, and side projects.
 tags: []
+# blog.json tags every file in this directory as a post; Eleventy's deep merge
+# concatenates arrays, so `tags: []` above cannot cancel it. Exclude explicitly
+# so the index does not list itself or appear in the feed.
+eleventyExcludeFromCollections: true
 permalink: /blog/
 ---
 <div class="container blog-index">
