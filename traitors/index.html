@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBBRM18RR7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-SBBRM18RR7');
+    </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roundtable Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="/theme.js"></script>
+<link rel="stylesheet" href="/theme.css" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate icon" href="/favicon-32.png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<style>
+/* Layout: a castle ledger — one working column, tabbed (Players / Episodes / Report / Points), Highland stone neutrals, heather accent, moss = Faithful, oxblood = Traitor */
+:root{
+  --bg:#eef0ec; --surface:#fbfcfa; --sunk:#e3e6e0; --line:#cdd2c9; --fg:#1f2421; --muted:#5d665f;
+  --accent:#5b3a6e; --accent-soft:#e9e1ef; --on-accent:#ffffff;
+  --faithful:#3f6b4a; --faithful-soft:#e1ece2; --traitor:#8e2a2a; --traitor-soft:#f3dfdc; --warn:#8a6200;
+  --chart-dim:#b9bfb7;
+  --display:"Cinzel", "Trajan Pro", Georgia, serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161917; --surface:#1e2220; --sunk:#262b28; --line:#363d38; --fg:#e7ebe6; --muted:#9aa49c;
+  --accent:#b99ad0; --accent-soft:#33283b; --on-accent:#1a141e;
+  --faithful:#86b892; --faithful-soft:#22322a; --traitor:#e08a80; --traitor-soft:#3a2321; --warn:#e2b54a;
+  --chart-dim:#4a524c; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#161917; --surface:#1e2220; --sunk:#262b28; --line:#363d38; --fg:#e7ebe6; --muted:#9aa49c;
+  --accent:#b99ad0; --accent-soft:#33283b; --on-accent:#1a141e;
+  --faithful:#86b892; --faithful-soft:#22322a; --traitor:#e08a80; --traitor-soft:#3a2321; --warn:#e2b54a;
+  --chart-dim:#4a524c; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1112px;margin:0 auto;display:flex;flex-direction:column;gap:18px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.02em;margin:0;text-wrap:balance}
+h1{font-size:1.65rem}
+h2{font-size:1.15rem}
+h3{font-size:.98rem;font-family:var(--body);font-weight:600;letter-spacing:0}
+p{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:.85rem}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:7px 12px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--traitor);border-color:var(--traitor)}
+.btn.sm{padding:4px 9px;font-size:.85rem}
+select,input[type=text],input[type=number],textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;min-width:0}
+textarea{width:100%;min-height:60px;resize:vertical}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;border-bottom:2px solid var(--fg);padding-bottom:12px}
+header.top .brand p{color:var(--muted);font-size:.9rem;max-width:60ch}
+header.top .brand a,.panel a{color:var(--accent)}
+.gamebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gamebar select{max-width:min(340px,80vw)}
+nav.tabs{display:flex;gap:4px;flex-wrap:wrap}
+nav.tabs button{border:none;background:transparent;padding:8px 14px;border-radius:var(--r) var(--r) 0 0;font-weight:600;color:var(--muted);border-bottom:3px solid transparent}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spread{justify-content:space-between}
+.note{background:var(--accent-soft);border-radius:var(--r);padding:10px 12px;font-size:.9rem}
+.note.warn{background:var(--traitor-soft)}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:1px 9px;font-size:.78rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.pill.t{background:var(--traitor-soft);color:var(--traitor)}
+.pill.f{background:var(--faithful-soft);color:var(--faithful)}
+.pill.n{background:var(--sunk);color:var(--muted)}
+.pill.a{background:var(--accent-soft);color:var(--accent)}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+
+/* players */
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.pitem{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;background:var(--bg)}
+.pitem input{flex:1;border:none;background:transparent;padding:2px}
+.pitem .x{border:none;background:transparent;color:var(--muted);font-size:1.1rem;line-height:1}
+
+/* episodes */
+.eplist{display:flex;flex-direction:column;gap:6px}
+.eprow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;background:var(--bg)}
+.eprow .epn{font-family:var(--display);font-weight:700;font-size:1.05rem;min-width:3.2em}
+.eprow .sum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.section{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.section:first-of-type{border-top:none;padding-top:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 11px;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip.used{opacity:.4}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
+.bcell{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid var(--line);border-radius:var(--r);padding:4px 4px 4px 9px;background:var(--bg);font-size:.9rem}
+.bcell.last{border-color:var(--accent);background:var(--accent-soft)}
+.seats{display:flex;flex-wrap:wrap;gap:6px;counter-reset:seat}
+.seat{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:var(--r);padding:3px 4px 3px 8px;background:var(--accent-soft);font-size:.9rem;cursor:grab;user-select:none;-webkit-user-select:none}
+.seat:active{cursor:grabbing}
+.seat.dragging{opacity:.35}
+.seat.drop-before{box-shadow:-3px 0 0 0 var(--fg)}
+.seat.drop-after{box-shadow:3px 0 0 0 var(--fg)}
+.seats.drop-end{outline:2px dashed var(--accent);outline-offset:4px;border-radius:var(--r)}
+.chip[draggable="true"]{cursor:grab}
+.seat b{font-family:var(--mono);font-size:.78rem;color:var(--accent)}
+.seat button{border:none;background:transparent;color:var(--muted);padding:0 4px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+td.r,th.r{text-align:right}
+.votes td select{width:100%;min-width:120px}
+.tally{display:flex;flex-wrap:wrap;gap:6px}
+.stickybar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-top:12px;margin-top:4px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+
+/* report */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:2px}
+.card .big{font-family:var(--display);font-size:1.45rem;font-weight:700;line-height:1.2}
+.rank{font-family:var(--display);font-weight:700;font-size:1.05rem;width:2.2em}
+.delta{font-family:var(--mono);font-size:.8rem}
+.delta.up{color:var(--traitor)} .delta.down{color:var(--faithful)}
+.bar{height:8px;border-radius:4px;background:var(--sunk);position:relative;min-width:80px}
+.bar span{position:absolute;top:0;bottom:0;border-radius:4px}
+.bar .zero{position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+tr.sel td{background:var(--accent-soft)}
+tr.click{cursor:pointer}
+.clues{display:flex;flex-direction:column;gap:3px;font-size:.86rem;padding:4px 0 8px}
+.clue{display:grid;grid-template-columns:4.2em 1fr auto;gap:8px}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px}
+.legend button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:2px 10px 2px 6px;font-size:.82rem;display:inline-flex;align-items:center;gap:6px}
+.legend button[aria-pressed="true"]{border-color:var(--fg);font-weight:600}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg button{border:none;background:var(--surface);padding:5px 12px;font-size:.88rem}
+.seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.ptable input{width:6.5em;text-align:right}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom, 0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:var(--r);font-size:.9rem;z-index:20}
+@media (max-width:560px){ h1{font-size:1.35rem} .eprow{grid-template-columns:1fr} .panel{padding:14px} }
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+/* read-only website mode: no server, the page reads ledger.sqlite itself */
+body.readonly #newGameBtn, body.readonly nav.tabs [data-tab="players"], body.readonly nav.tabs [data-tab="points"],
+body.readonly [data-act="new-ep"], body.readonly [data-act="new-game"], body.readonly .stickybar, body.readonly .rw-only,
+body.readonly [data-act="xr-add"], body.readonly [data-act="xr-del"], body.readonly [data-act="re-add"], body.readonly [data-act="re-del"],
+body.readonly [data-act="seat-copy"], body.readonly [data-act="seat-clear"]{display:none!important}
+body.readonly .editor-ro select:disabled, body.readonly .editor-ro textarea:disabled{opacity:1;color:var(--fg)}
+.site-header .brand-name{font-family:inherit;text-wrap:initial}
+.rolabel{font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">
+            <span class="monogram">KDB</span>
+            <span class="brand-text">
+                <h1 class="brand-name">Kirk D. Brown</h1>
+                <span class="tagline">Senior Full-Stack Engineer</span>
+            </span>
+        </a>
+        <div class="header-actions">
+            <a href="/blog/" aria-label="Blog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+            <a href="https://github.com/kdborg" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+            <a href="https://www.linkedin.com/in/kirk-d-brown/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+            <button type="button" class="theme-toggle" aria-label="Toggle dark mode">
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
+        </div>
+    </header>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Roundtable Ledger</h1>
+      <p>Log each episode of a Traitors game and score every player with Hannah Fry's Turing points (<a href="https://www.youtube.com/watch?v=twDvxNooI_4" target="_blank" rel="noopener">watch her video</a>): who burned an early vote, who piled on a falling Traitor, who sat beside them, who came down to breakfast with them.</p>
+    </div>
+    <div class="gamebar">
+      <label class="label" for="gameSel">Game</label>
+      <select id="gameSel" aria-label="Choose a game"></select>
+      <button class="btn sm" id="newGameBtn">New game</button>
+    </div>
+  </header>
+  <div id="status" class="note" hidden></div>
+  <p id="roInfo" class="rolabel" hidden></p>
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="report" aria-selected="true">Report</button>
+    <button role="tab" data-tab="episodes" aria-selected="false">Episodes</button>
+    <button role="tab" data-tab="players" aria-selected="false">Players</button>
+    <button role="tab" data-tab="points" aria-selected="false">Points</button>
+  </nav>
+  <main id="main"><div class="panel"><div class="empty">Loading your games…</div></div></main>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+/* ---------------- point sets (from the 20-season analysis) ---------------- */
+const SETS = {
+  fry:  {label:"Fry's points (from her video)", burn:.47, first:.40, again:.33, stayed:-1.28, named:-1.69},
+  all:  {label:"All 20 English-language seasons", burn:.05, first:.20, again:.02, stayed:-.50, named:-.12},
+  UK:   {label:"UK seasons (incl. Celebrity)", burn:.43, first:.38, again:-.54, stayed:-.80, named:-.34},
+  US:   {label:"US seasons", burn:-.57, first:.34, again:-.23, stayed:-1.64, named:.70},
+  Australia:{label:"Australian seasons", burn:-1.36, first:.12, again:.50, stayed:-.37, named:0},
+  Canada:{label:"Canadian seasons", burn:-.89, first:.38, again:0, stayed:-.90, named:-.38},
+  NZ:   {label:"New Zealand seasons", burn:.83, first:-.03, again:2.12, stayed:-.30, named:-.77},
+  Ireland:{label:"Irish seasons", burn:.15, first:-.10, again:-.44, stayed:.30, named:1.03}
+};
+const EXTRA = {breakfast:-1.73, seating:-1.91, revenge:1.49};
+const CLUE_INFO = [
+  ['burn','Early burn vote','In one of the first three roundtables, voted for someone nobody else named.'],
+  ['first','Pile-on, first time','On the night a Traitor is banished, voted for them having never voted for them before.'],
+  ['again','Pile-on, again','On the night a Traitor is banished, voted for them having voted for them before.'],
+  ['stayed','Stayed out of the pile-on','On the night a Traitor is banished, voted for somebody else.'],
+  ['named','Named by the banished Traitor','The revealed Traitor had voted for this player at an earlier roundtable.'],
+  ['breakfast','Last breakfast group with a Traitor','Came down to breakfast in the last group alongside someone later revealed as a Traitor (Fry: −1.73).'],
+  ['seating','Sat next to a banished Traitor','Sat directly either side of the Traitor at the roundtable that banished them (TraitorBase: −1.91).'],
+  ['revenge','Revenge vote from a banished Traitor','The banished Traitor voted for this player, who had voted to banish them (TraitorBase: +1.49).']
+];
+
+/* ---------------- helpers ---------------- */
+const $ = (s,el=document)=>el.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = v => (v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(2);
+const uid = () => Math.random().toString(36).slice(2,10);
+let toastT; function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2200);}
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* ---------------- state ---------------- */
+let games={}, full=null, score=null, savedReports=[], currentId=lsGet('rl.current')||'', tab=lsGet('rl.tab')||'report';
+let editing=null;      // {gameId, ep} working copy of an episode
+let exportInfo=null, chartMode='score', reportSet=null, highlight=null, expanded=null, busy=false, showT=lsGet('rl.showT')!=='0';
+const game = ()=> full && full.id===currentId ? full : null;
+const pname = (g,id)=> (g.players.find(p=>p.id===id)||{}).name || '?';
+
+/* ---------------- read-only website mode ----------------
+   With no server behind it (e.g. on a static web host), this page loads ledger.sqlite from its own folder with
+   sql.js and scores it in the browser with ledger-core.js. Update the website by uploading a new ledger.sqlite. */
+let READONLY=false, DB=null;
+const SQLJS='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/';
+function loadScript(src){ return new Promise((ok,fail)=>{ const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>fail(new Error('Could not load '+src)); document.head.appendChild(s); }); }
+async function hasServer(){
+  try{ const r=await fetch('/api/games',{cache:'no-store'}); if(!r.ok) return false; const d=await r.json(); return Array.isArray(d); }catch(e){ return false; }
+}
+async function openStatic(){
+  READONLY=true; document.body.classList.add('readonly');
+  if(tab==='players'||tab==='points') tab='report';
+  await Promise.all([loadScript('ledger-core.js'), loadScript(SQLJS+'sql-wasm.js')]);
+  const SQL=await window.initSqlJs({locateFile:f=>SQLJS+f});
+  const r=await fetch('ledger.sqlite',{cache:'no-cache'});
+  if(!r.ok) throw new Error('Could not load ledger.sqlite from this folder ('+r.status+'). Upload it next to this page.');
+  DB=new SQL.Database(new Uint8Array(await r.arrayBuffer()));
+  const lm=r.headers.get('Last-Modified');
+  const info=$('#roInfo'); info.hidden=false;
+  info.textContent='Read-only view'+(lm?' · data updated '+new Date(lm).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'}):'')+'.';
+}
+function staticApi(method, path){
+  const C=window.LedgerCore, u=new URL(path, location.href), m=u.pathname.match(/\/api\/games(?:\/(\d+))?(?:\/(\w+))?$/);
+  if(method!=='GET' || !m) throw new Error('This is a read-only copy of the ledger. Make changes in the app on your computer, then upload the new ledger.sqlite.');
+  if(!m[1]) return C.listGames(DB);
+  if(!m[2]) return C.loadGame(DB, +m[1]);
+  if(m[2]==='score') return C.scoreGame(DB, +m[1], u.searchParams.get('set'));
+  if(m[2]==='reports') return [];
+  throw new Error('Not available in the read-only view.');
+}
+
+/* ---------------- local API ---------------- */
+async function api(method, path, body){
+  if(READONLY) return staticApi(method, path);
+  const r = await fetch(path, {method, headers: body? {'Content-Type':'application/json'} : {}, body: body? JSON.stringify(body) : undefined});
+  let data=null; try{ data=await r.json(); }catch(e){}
+  if(!r.ok){ throw new Error((data&&data.error) || ('The server answered '+r.status+'.')); }
+  return data;
+}
+function showStatus(msg){ const s=$('#status'); s.textContent=msg||''; s.hidden=!msg; }
+async function run(fn, okMsg){
+  try{ busy=true; const res=await fn(); showStatus(''); if(okMsg) toast(typeof okMsg==='function'? okMsg(res) : okMsg); return res; }
+  catch(e){ showStatus(e.message==='Failed to fetch' ? 'Can\'t reach the ledger server. Check that server.py is still running, then reload this page.' : e.message); throw e; }
+  finally{ busy=false; }
+}
+async function refreshList(){ const list=await api('GET','/api/games'); games={}; list.forEach(g=>games[g.id]=g); if(!games[currentId]){ const ids=list.filter(g=>!g.example).concat(list.filter(g=>g.example)).map(g=>g.id); currentId=ids[0]||''; lsSet('rl.current',currentId); } }
+async function loadCurrent(){ full=null; score=null; savedReports=[]; if(!currentId) return; full=await api('GET','/api/games/'+currentId); await loadScore(); }
+async function loadScore(){ if(!full){ score=null; return; } score=await api('GET','/api/games/'+full.id+'/score'+(reportSet?('?set='+encodeURIComponent(reportSet)):'')); reportSet=score.set; savedReports=await api('GET','/api/games/'+full.id+'/reports'); }
+async function applyGame(g){ full=g; games[g.id]={id:g.id,name:g.name,example:g.example}; await loadScore(); render(); }
+async function boot(){
+  try{ await run(async()=>{ if(!(await hasServer())) await openStatic(); await refreshList(); await loadCurrent(); }); }catch(e){}
+  render();
+}
+
+/* ---------------- rendering ---------------- */
+function render(){
+  renderGameSel();
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.tab===tab)));
+  const g=game(), m=$('#main');
+  if(!g){ m.innerHTML=`<div class="panel"><div class="empty"><h2>No games yet</h2><p style="margin-top:8px">Start a game, add the players, then log each episode as it airs.</p><p style="margin-top:14px"><button class="btn primary" data-act="new-game">Start a game</button></p></div></div>`; return; }
+  if(tab==='players') m.innerHTML=renderPlayers(g);
+  else if(tab==='episodes'){ m.innerHTML=editing&&editing.gameId===currentId? renderEditor(g) : renderEpisodes(g);
+    if(READONLY && editing){ const p=m.querySelector('.panel'); p.classList.add('editor-ro');
+      p.querySelectorAll('select,input,textarea,button').forEach(el=>{ if(el.dataset.act!=='cancel-ep') el.disabled=true; });
+      p.querySelectorAll('[draggable]').forEach(el=>el.removeAttribute('draggable')); } }
+  else if(tab==='points') m.innerHTML=renderPoints(g);
+  else { m.innerHTML=renderReport(g); }
+}
+function renderGameSel(){
+  const s=$('#gameSel'); const ids=Object.keys(games).sort((a,b)=>(games[a].example?1:0)-(games[b].example?1:0) || String(games[a].name).localeCompare(games[b].name));
+  s.innerHTML = ids.length? ids.map(id=>`<option value="${esc(id)}" ${id===currentId?'selected':''}>${esc(games[id].name||'Untitled game')}${games[id].example?' (example)':''}</option>`).join('') : '<option value="">No games yet</option>';
+}
+function missingData(g){
+  // What hasn't been recorded anywhere in this game (past seasons on Wikipedia have none of these).
+  const eps=g.episodes||[], any=f=>eps.some(f), out=[];
+  if(!any(e=>Object.values(e.breakfast||{}).some(v=>+v>0))) out.push('breakfast order');
+  if(!any(e=>Object.values(e.cars||{}).some(v=>+v>0))) out.push('cars');
+  if(!any(e=>(e.seats||[]).length)) out.push('roundtable seating order');
+  return out;
+}
+function missingNote(g){
+  if(!(g.episodes||[]).some(e=>Object.keys(e.votes||{}).length)) return '';
+  const m=missingData(g); if(!m.length) return '';
+  const list=m.length===1? m[0] : m.slice(0,-1).join(', ')+' and '+m[m.length-1];
+  return `<div class="note small"><b>Not available for this game:</b> ${list}. It wasn't recorded (past seasons don't publish it), so the clues and "never three together" rules that need it don't apply.${m.includes('breakfast order')&&m.includes('roundtable seating order')?' The scores come from the votes alone.':''}</div>`;
+}
+function exampleNote(g){ return g.example? `<div class="note"><b>Example game.</b> ${esc(g.source||'')}${READONLY?'':' Use <b>New game</b> to start your own; you can delete this one on the Players tab.'}</div>` : ''; }
+
+/* players */
+function renderPlayers(g){
+  const used=new Set(); g.episodes.forEach(e=>{ Object.keys(e.votes||{}).forEach(x=>used.add(x)); (e.murdered||[]).forEach(x=>used.add(x)); });
+  return `<div class="panel">${exampleNote(g)}
+    <div class="row spread"><h2>Players</h2><span class="muted small">${g.players.length} players</span></div>
+    <div class="row"><label class="label" for="gameName">Game name</label><input type="text" id="gameName" value="${esc(g.name)}" style="flex:1;min-width:200px"></div>
+    <div class="section"><h3>Add players</h3>
+      <p class="muted small">Type one name, or paste several separated by commas or new lines. Use the name you'll recognise at a glance.</p>
+      <div class="row"><textarea id="addNames" placeholder="Alan, Cat, Jonathan…" style="flex:1;min-height:44px"></textarea><button class="btn primary" data-act="add-players">Add</button></div>
+    </div>
+    <div class="section"><h3>Cast</h3>
+      ${g.players.length? `<div class="plist">${g.players.map(p=>`<div class="pitem"><input type="text" id="pn-${esc(p.id)}" data-pid="${esc(p.id)}" value="${esc(p.name)}" aria-label="Player name"><input type="text" id="pg-${esc(p.id)}" data-pgroup="${esc(p.id)}" value="${esc(p.group||'')}" placeholder="group" aria-label="Group for ${esc(p.name)}" style="max-width:7.5em;color:var(--muted)">${used.has(p.id)?'':`<button class="x" data-act="del-player" data-pid="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button>`}</div>`).join('')}</div><p class="muted small">Players who already appear in an episode can be renamed but not removed. The optional group (comedian, actor, athlete…) lets the trio rules cross off groups of Traitors who'd all be from the same group.</p>` : '<div class="empty">No players yet. Add the cast above.</div>'}
+    </div>
+    <div class="section"><h3>Delete this game</h3>
+      <div class="row"><button class="btn danger sm" data-act="del-game-ask">Delete “${esc(g.name)}”</button><span id="delConfirm" hidden><span class="small">This removes every episode you logged.</span> <button class="btn danger sm" data-act="del-game">Yes, delete it</button> <button class="btn sm ghost" data-act="del-game-cancel">Keep it</button></span></div>
+    </div>
+  </div>`;
+}
+
+/* episodes list */
+function renderEpisodes(g){
+  const eps=[...g.episodes].sort((a,b)=>a.n-b.n);
+  const rows=eps.map(e=>{
+    const bits=[];
+    (e.murdered||[]).forEach(id=>bits.push(`<span class="pill f">Murdered: ${esc(pname(g,id))}</span>`));
+    const groups=Object.values(e.breakfast||{}).filter(x=>+x>0); if(groups.length) bits.push(`<span class="pill n">Breakfast logged</span>`);
+    if(Object.values(e.cars||{}).some(x=>+x>0)) bits.push(`<span class="pill n">Cars logged</span>`);
+    if((e.seats||[]).length) bits.push(`<span class="pill n">Seating logged</span>`);
+    const nv=Object.values(e.votes||{}).filter(Boolean).length; if(nv) bits.push(`<span class="pill n">${nv} votes</span>`);
+    if(e.banished) bits.push(`<span class="pill ${e.role==='Traitor'?'t':e.role==='Faithful'?'f':'n'}">Banished: ${esc(pname(g,e.banished))}${e.role?' · '+e.role:''}</span>`);
+    (e.extraRounds||[]).forEach((x,i)=>{ if(x.banished) bits.push(`<span class="pill ${x.role==='Traitor'?'t':x.role==='Faithful'?'f':'n'}">Banished (${i+2}): ${esc(pname(g,x.banished))}${x.role?' · '+x.role:''}</span>`); });
+    (e.left||[]).forEach(id=>bits.push(`<span class="pill n">Left: ${esc(pname(g,id))}</span>`));
+    if(e.isFinal) bits.unshift('<span class="pill a">Final</span>');
+    if((e.traitors||[]).length) bits.unshift(`<span class="pill t">Traitors: ${(e.traitors||[]).map(id=>esc(pname(g,id))).join(', ')}</span>`);
+    (e.recruits||[]).forEach(id=>bits.push(`<span class="pill t">Recruited: ${esc(pname(g,id))}</span>`));
+    if(!bits.length) bits.push('<span class="muted small">Nothing logged</span>');
+    return `<div class="eprow"><span class="epn">Ep ${e.n}</span><div class="sum">${bits.join('')}</div><div class="row"><button class="btn sm" data-act="edit-ep" data-n="${e.n}">${READONLY?'View':'Edit'}</button></div></div>`;
+  }).join('');
+  const nextN=eps.length?eps[eps.length-1].n+1:1;
+  const fin=eps.find(e=>e.isFinal);
+  return `<div class="panel">${exampleNote(g)}${missingNote(g)}
+    <div class="row spread"><h2>Episodes</h2>${fin?`<span class="muted small">Episode ${fin.n} is marked as the final. Untick that in episode ${fin.n} to log more.</span>`:g.players.length?`<button class="btn primary" data-act="new-ep" data-n="${nextN}">Log episode ${nextN}</button>`:''}</div>
+    ${!g.players.length?'<div class="empty">Add the players first, on the Players tab.</div>': eps.length?`<div class="eplist">${rows}</div>`:'<div class="empty">No episodes logged yet. Log episode 1 once it airs.</div>'}
+  </div>`;
+}
+
+/* episode editor */
+function aliveBefore(g,n){ const out=new Set(); g.episodes.filter(e=>e.n<n).forEach(e=>{ (e.murdered||[]).forEach(x=>out.add(x)); if(e.banished) out.add(e.banished); (e.extraRounds||[]).forEach(x=>{ if(x.banished) out.add(x.banished); }); (e.left||[]).forEach(x=>out.add(x)); }); return g.players.filter(p=>!out.has(p.id)); }
+function traitorsBefore(g,n){ const m=new Map(); g.episodes.filter(e=>e.n<n).sort((a,b)=>a.n-b.n).forEach(e=>{ (e.traitors||[]).forEach(id=>{ if(!m.has(id)) m.set(id,{n:e.n,kind:'original'}); }); (e.recruits||[]).forEach(id=>{ if(!m.has(id)) m.set(id,{n:e.n,kind:'recruited',timing:(e.recruitTiming||{})[id]||'after'}); }); }); return m; }
+function roleOf(g,e,id){
+  // Worked out from the Traitors picked in episode 1 and the recruits logged since, including this episode's.
+  const before=traitorsBefore(g,e.n);
+  if(before.has(id)){ const k=before.get(id); return {role:'Traitor', why: k.kind==='recruited'? `Recruited in episode ${k.n}.` : 'One of the original Traitors.'}; }
+  if(e.n===1 && (e.traitors||[]).includes(id)) return {role:'Traitor', why:'One of the original Traitors.'};
+  if((e.recruits||[]).includes(id) && (e.recruitTiming||{})[id]==='before') return {role:'Traitor', why:'Recruited this episode, before the roundtable.'};
+  if(!before.size && !(e.traitors||[]).length) return {role:'Faithful', why:'No Traitors recorded yet, so counted as a Faithful.'};
+  return {role:'Faithful', why:'Not among the Traitors you recorded.'};
+}
+/* ballots: votes (first), revote (second), moreRevotes[0..] (third onwards) */
+function ballotObj(src,k){ if(k==='votes'||k==='revote'){ src[k]=src[k]||{}; return src[k]; } const i=+k.slice(1); src.moreRevotes=src.moreRevotes||[]; while(src.moreRevotes.length<=i) src.moreRevotes.push({}); return src.moreRevotes[i]; }
+function filledRe(src){ let n=Object.values(src.revote||{}).some(Boolean)?1:0; (src.moreRevotes||[]).forEach((m,i)=>{ if(Object.values(m||{}).some(Boolean)) n=i+2; }); return n; }
+function reCount(src){ return Math.max(src._nRe||0, filledRe(src)); }
+function reKeys(n){ return Array.from({length:n},(_,i)=>i===0?'revote':'m'+(i-1)); }
+function roundSrc(e,ri){ return ri<0? e : e.extraRounds[ri]; }
+function voteBlock(g,src,ri,table,seats,nm){
+  // One roundtable's ballots: first vote plus any number of tie re-votes, in seat order.
+  const order=seats.filter(id=>table.some(p=>p.id===id)).map(id=>table.find(p=>p.id===id)).concat(table.filter(p=>!seats.includes(p.id)));
+  const optsT=(sel,ex)=>`<option value="">—</option>`+table.filter(p=>p.id!==ex).map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
+  const nRe=reCount(src), keys=['votes'].concat(reKeys(nRe));
+  const label=k=>k==='votes'?'Voted for':k==='revote'?'Re-vote':'Re-vote '+(+k.slice(1)+2);
+  const rows=order.map((p,i)=>`<tr><td>${seats.includes(p.id)?`<span class="muted num small">${i+1}</span> `:''}${esc(p.name)}</td>${keys.map(k=>`<td><select id="b${ri}-${k}-${esc(p.id)}" data-rv="${ri}" data-k="${k}" data-pid="${esc(p.id)}" aria-label="${esc(p.name)}: ${label(k)}">${optsT((ballotObj(src,k))[p.id],p.id)}</select></td>`).join('')}</tr>`).join('');
+  const tally=obj=>{ const c={}; Object.entries(obj||{}).forEach(([v,t])=>{ if(t && table.some(p=>p.id===v)) c[t]=(c[t]||0)+1; }); const a=Object.entries(c).sort((x,y)=>y[1]-x[1]); return a.length? a.map(([t,k])=>`<span class="pill a">${nm(t)} ${k}</span>`).join('') : '<span class="muted small">No votes entered</span>'; };
+  return `<div class="row"><button class="btn sm" data-act="re-add" data-r="${ri}">${nRe?'Add another re-vote':'Add a tie re-vote'}</button>${nRe?`<button class="btn sm ghost" data-act="re-del" data-r="${ri}">Remove last re-vote</button>`:''}</div>
+    <div class="tablewrap"><table class="votes"><thead><tr><th>Player</th>${keys.map(k=>`<th>${label(k)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
+    ${keys.map(k=>`<div class="tally">${k==='votes'?'':`<span class="label">${label(k)}</span>`}${tally(ballotObj(src,k))}</div>`).join('')}`;
+}
+function moreRounds(g,e,atTable){
+  // Further banishments in the same episode (a double banishment, or the final's votes). Each round's table
+  // is everyone left after the earlier rounds.
+  const nm=id=>esc(pname(g,id));
+  const seats=(e.seats||[]);
+  let gone=new Set(e.banished?[e.banished]:[]);
+  const blocks=(e.extraRounds||[]).map((x,i)=>{
+    const table=atTable.filter(p=>!gone.has(p.id));
+    const optsT=sel=>`<option value="">—</option>`+table.map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
+    const r=x.banished? roleOf(g,e,x.banished) : null;
+    const html=`<div class="section"><div class="row spread"><h3>Banishment ${i+2}</h3><button class="btn sm ghost" data-act="xr-del" data-r="${i}">Remove this banishment</button></div>
+      <p class="muted small">${table.length} players at the table. Votes follow the seating above, minus anyone already banished this episode. Leave the votes blank if only the result is known.</p>
+      ${voteBlock(g,x,i,table,seats,nm)}
+      <div class="row"><label for="xban-${i}" class="small">Banished</label><select id="xban-${i}" data-xr="${i}" data-xk="banished">${optsT(x.banished)}</select>
+        ${r?`<span class="pill ${r.role==='Traitor'?'t':'f'}">${r.role}</span><span class="muted small">${esc(r.why)}</span>`:''}</div></div>`;
+    if(x.banished) gone.add(x.banished);
+    return html;
+  }).join('');
+  return blocks+`<div class="section"><button class="btn sm" data-act="xr-add">Add another banishment this episode</button> <span class="muted small">For a double banishment, or each vote at the final. Anyone who chose to leave goes under "Anyone who left another way" below.</span></div>`;
+}
+function renderEditor(g){
+  const e=editing.ep, n=e.n, alive=aliveBefore(g,n), murdered=new Set(e.murdered||[]);
+  const atTable=alive.filter(p=>!murdered.has(p.id));
+  const nm=id=>esc(pname(g,id));
+  const opts=(sel,exclude)=>`<option value="">—</option>`+atTable.filter(p=>p.id!==exclude).map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
+  // breakfast
+  const bfVals=Object.entries(e.breakfast||{}).filter(([id,v])=>+v>0 && atTable.some(p=>p.id===id));
+  const maxG=bfVals.length?Math.max(...bfVals.map(x=>+x[1])):0;
+  const bf=atTable.map(p=>{ const v=+(e.breakfast||{})[p.id]||0; return `<div class="bcell ${v&&v===maxG?'last':''}"><span>${esc(p.name)}</span><select id="bf-${esc(p.id)}" data-bf="${esc(p.id)}" aria-label="Breakfast group for ${esc(p.name)}"><option value="0">—</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${v===k?'selected':''}>Group ${k}</option>`).join('')}</select></div>`; }).join('');
+  // seating
+  const seats=(e.seats||[]).filter(id=>atTable.some(p=>p.id===id));
+  const seatChips=atTable.map(p=>`<button class="chip ${seats.includes(p.id)?'used':''}" data-act="seat-add" data-pid="${esc(p.id)}" ${seats.includes(p.id)?'disabled':'draggable="true"'}>${esc(p.name)}</button>`).join('');
+  const prev=[...g.episodes].filter(x=>x.n<n && (x.seats||[]).length).sort((a,b)=>b.n-a.n)[0];
+  // votes
+  return `<div class="panel">
+    <div class="row spread"><h2>Episode ${n}${e.isFinal?' <span class="pill a">Final</span>':''}</h2><button class="btn sm ghost" data-act="cancel-ep">Back to episodes</button></div>
+    ${missingNote(g)}
+    ${(()=>{ const before=traitorsBefore(g,n), firstTime = n===1;
+      if(firstTime) return `<div class="section"><h3>The Traitors</h3><p class="muted small">Tap the players the show reveals to viewers as the Traitors. This is for your eyes only: it never changes a score, but the report uses it to show whether the points are finding them.</p>
+        <div class="chips">${alive.map(p=>`<button class="chip" aria-pressed="${(e.traitors||[]).includes(p.id)}" data-act="toggle-traitor" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
+        ${(e.traitors||[]).length?`<p class="small">Traitors: <b>${(e.traitors||[]).map(id=>esc(pname(g,id))).join(', ')}</b></p>`:''}</div>`;
+      if(!before.size) return `<div class="note warn small">No Traitors recorded yet. Pick them in episode 1, or every banished player will count as a Faithful.</div>`;
+      const aliveIds=new Set(alive.map(p=>p.id));
+      const active=[...before.entries()].filter(([id])=>aliveIds.has(id));
+      const gone=[...before.keys()].filter(id=>!aliveIds.has(id));
+      return `<div class="note small">Traitors in the game: ${active.length? active.map(([id,k])=>`<b>${esc(pname(g,id))}</b>${k.kind==='recruited'?` (recruited ep ${k.n})`:''}`).join(', ') : '<b>none left</b>'}${gone.length?`<span class="muted"> · already out: ${gone.map(id=>esc(pname(g,id))).join(', ')}</span>`:''}</div>`; })()}
+    <div class="section"><h3>Murdered overnight</h3><p class="muted small">Tap anyone who didn't come down to breakfast because the Traitors murdered them. They're cleared as Faithful.</p>
+      <div class="chips">${alive.map(p=>`<button class="chip" aria-pressed="${murdered.has(p.id)}" data-act="toggle-murder" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')||'<span class="muted small">Nobody left.</span>'}</div></div>
+    <div class="section"><h3>Breakfast order</h3><p class="muted small">Give everyone the number of the group they arrived in: 1 for the first group in, and so on. The highest number is the last group, highlighted.</p>
+      <div class="bgrid">${bf}</div>${maxG?`<p class="small">Last group: <b>${bfVals.filter(x=>+x[1]===maxG).map(x=>nm(x[0])).join(', ')}</b></p>`:''}</div>
+    <div class="section"><h3>Cars</h3><p class="muted small">If the cars to the mission are shown, give everyone their car number. Fry assumes three Traitors never share a car, so any car with three or more people crosses off every Traitor group of three among them. Two Traitors in a car is fine.</p>
+      <div class="bgrid">${atTable.map(p=>{ const v=+(e.cars||{})[p.id]||0; return `<div class="bcell"><span>${esc(p.name)}</span><select id="car-${esc(p.id)}" data-car="${esc(p.id)}" aria-label="Car for ${esc(p.name)}"><option value="0">—</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${v===k?'selected':''}>Car ${k}</option>`).join('')}</select></div>`; }).join('')}</div></div>
+    <div class="section"><h3>Shield</h3><p class="muted small">Who holds a shield going into the roundtable or the next murder, if you know. Recorded for reference; it doesn't change any score.</p>
+      <div class="chips">${atTable.map(p=>`<button class="chip" aria-pressed="${(e.shields||[]).includes(p.id)}" data-act="toggle-shield" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div></div>
+    <div class="section"><h3>Roundtable seating</h3><p class="muted small">Tap players in clockwise order, starting anywhere, or drag them into place. Drag a seat to move it, or focus it and use the arrow keys. The table is a circle, so the last seat sits next to the first. Votes below follow this order.</p>
+      <div class="seats" id="seatList">${seats.length? seats.map((id,i)=>`<span class="seat" draggable="true" tabindex="0" data-seat="${i}" aria-label="Seat ${i+1}: ${nm(id)}. Drag, or use the left and right arrow keys, to move."><b>${i+1}</b>${nm(id)}<button data-act="seat-del" data-i="${i}" aria-label="Remove ${nm(id)} from seat ${i+1}">×</button></span>`).join('') : '<span class="muted small">No seats yet. Tap or drag players here.</span>'}</div>
+      <div class="chips">${seatChips}</div>
+      <div class="row">${prev?`<button class="btn sm" data-act="seat-copy" data-from="${prev.n}">Copy episode ${prev.n}'s seating</button>`:''}${seats.length?'<button class="btn sm ghost" data-act="seat-clear">Clear seating</button>':''}</div></div>
+    <div class="section"><h3>Votes${(e.extraRounds||[]).length?' (banishment 1)':''}</h3>
+      <p class="muted small">Pick who each player voted for, in roundtable order (anyone not seated is listed last). Leave anyone blank who didn't vote. Add a re-vote for each extra ballot after a tie.</p>
+      ${voteBlock(g,e,-1,atTable,seats,nm)}</div>
+    <div class="section"><h3>Banished</h3>
+      <div class="row"><label for="banSel" class="small">${(e.extraRounds||[]).length?'Banishment 1':'Banished player'}</label><select id="banSel" data-field="banished">${opts(e.banished)}</select>
+        ${e.banished? (()=>{ const r=roleOf(g,e,e.banished); return `<span class="pill ${r.role==='Traitor'?'t':'f'}">${r.role}</span><span class="muted small">${esc(r.why)}</span>`; })() : ''}</div>
+      <label class="small"><input type="checkbox" id="isFinal" data-act="toggle-final" ${e.isFinal?'checked':''}> This is the final episode</label>
+    </div>
+    ${moreRounds(g,e,atTable)}
+    ${(()=>{ if(n===1 && !(e.recruits||[]).length) return ''; const before=traitorsBefore(g,n); const cands=alive.filter(p=>!before.has(p.id) && !(e.traitors||[]).includes(p.id) && !murdered.has(p.id));
+      return `<div class="section"><h3>Recruited as a Traitor</h3><p class="muted small">Tap anyone the show reveals was recruited this episode, then say whether it happened before or after tonight's roundtable. Their roundtable votes from then on count as a Traitor's.</p>
+        <div class="chips">${cands.map(p=>`<button class="chip" aria-pressed="${(e.recruits||[]).includes(p.id)}" data-act="toggle-recruit" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')||'<span class="muted small">Nobody available to recruit.</span>'}</div>
+        ${(e.recruits||[]).map(id=>`<div class="row small"><b>${esc(pname(g,id))}</b> was recruited <select id="rt-${esc(id)}" data-rtiming="${esc(id)}"><option value="after" ${((e.recruitTiming||{})[id]||'after')==='after'?'selected':''}>after tonight's roundtable (overnight)</option><option value="before" ${(e.recruitTiming||{})[id]==='before'?'selected':''}>before tonight's roundtable</option></select></div>`).join('')}</div>`; })()}
+    <div class="section"><h3>Anyone who left another way</h3><p class="muted small">Walked out, removed, or confessed in the finale. Tap to mark, then set their role if it was revealed.</p>
+      <div class="chips">${atTable.map(p=>`<button class="chip" aria-pressed="${(e.left||[]).includes(p.id)}" data-act="toggle-left" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')}</div>
+      ${(e.left||[]).map(id=>`<div class="row small">${nm(id)} was <select id="lr-${esc(id)}" data-leftrole="${esc(id)}"><option value="">role not revealed</option><option ${(e.leftRoles||{})[id]==='Faithful'?'selected':''}>Faithful</option><option ${(e.leftRoles||{})[id]==='Traitor'?'selected':''}>Traitor</option></select></div>`).join('')}</div>
+    <div class="section"><h3>Notes</h3><textarea id="epNotes" data-field="notes" placeholder="Shields, twists, anything you want to remember">${esc(e.notes||'')}</textarea></div>
+    <div class="stickybar"><span id="epDel"><button class="btn danger sm" data-act="del-ep-ask">Delete episode</button></span><div class="row"><button class="btn ghost" data-act="cancel-ep">Cancel</button><button class="btn primary" data-act="save-ep">Save episode ${n}</button></div></div>
+  </div>`;
+}
+
+/* points */
+function renderPoints(g){
+  const p=g.points;
+  const rows=CLUE_INFO.map(([k,name,desc])=>{ const isExtra=k in EXTRA; const on=!isExtra||g.extras[k];
+    return `<tr><td><b>${name}</b><div class="muted small">${desc}</div></td><td class="r">${isExtra?`<label class="small"><input type="checkbox" id="ex-${k}" data-extra="${k}" ${on?'checked':''}> Use</label>`:'<span class="muted small">Always</span>'}</td><td class="r"><input type="number" step="0.01" id="pt-${k}" data-pt="${k}" value="${(+p[k]).toFixed(2)}" aria-label="${name} points"></td></tr>`; }).join('');
+  return `<div class="panel">
+    <div class="row spread"><h2>Points</h2><span class="pill a">${esc(g.pointSet==='custom'?'Custom points':(SETS[g.pointSet]||SETS.fry).label)}</span></div>
+    <p class="muted small" style="max-width:70ch">Each clue adds points to a player. Positive leans Traitor, negative leans Faithful. A player's score is the running total, and the report ranks players still in the game from most to least suspicious. Pick a starting set, then fine-tune any number. Changes are saved straight away.</p>
+    <div class="row"><label class="label" for="setSel">Starting set</label><select id="setSel">${Object.entries(SETS).map(([k,s])=>`<option value="${k}" ${g.pointSet===k?'selected':''}>${esc(s.label)}</option>`).join('')}${g.pointSet==='custom'?'<option value="custom" selected>Custom</option>':''}</select></div>
+    <p class="muted small">The method and Fry's points come from her video <a href="https://www.youtube.com/watch?v=twDvxNooI_4" target="_blank" rel="noopener">How would Alan Turing have played the Traitors?</a>.</p>
+    <p class="muted small">Fry's points come from UK data. The country sets come from the 20-season vote analysis; a country with few seasons has noisy numbers, and a 0 means no Traitor there ever showed that clue. Breakfast and seating aren't in the public vote tables, so those always start from Fry's and TraitorBase's values.</p>
+    <div class="tablewrap"><table class="ptable"><thead><tr><th>Clue</th><th class="r">In use</th><th class="r">Points</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="section"><h3>Possible Traitor groups</h3><p class="muted small">Fry's other tool: list every group that could be the Traitors, cross groups off as facts come in, and weight what's left by the points. These settings control which groups get crossed off.</p>
+      <div class="row"><label for="ruleStart" class="small">Traitors at the start</label><input type="number" min="1" max="10" id="ruleStart" data-rule="startTraitors" value="${esc((g.rules||{}).startTraitors||'')}" placeholder="${esc((g.rules||{}).startTraitorsUsed||3)}" style="width:5em"><span class="muted small">Leave blank to use the number picked in episode 1 (or 3).</span></div>
+      <p class="muted small">Fry's assumptions: the Traitors won't all be alike, and three Traitors are never seen together. Each rule applies once a group has three or more Traitors; two together is fine.</p>
+      <label class="small"><input type="checkbox" id="ruleGroup" data-rule="sameGroup" ${(g.rules||{}).sameGroup!==false?'checked':''}> Too alike: three share a group label, e.g. three male comedians (set labels on the Players tab).</label>
+      <label class="small"><input type="checkbox" id="ruleBf" data-rule="breakfastTogether" ${(g.rules||{}).breakfastTogether!==false?'checked':''}> Three came down to breakfast in the same group.</label>
+      <label class="small"><input type="checkbox" id="ruleCar" data-rule="carTogether" ${(g.rules||{}).carTogether!==false?'checked':''}> Three rode in the same car.</label>
+      <label class="small"><input type="checkbox" id="ruleAdj" data-rule="adjacent" ${(g.rules||{}).adjacent!==false?'checked':''}> Three sat side by side at a roundtable.</label></div>
+  </div>`;
+}
+
+/* report */
+const PAL=['#5b3a6e','#3f6b4a','#8e2a2a','#2f5d7c','#a0662a','#6f7d2a','#7a3f63','#2e7a72','#5c5c8a','#9a4f3a'];
+const PAL_D=['#b99ad0','#86b892','#e08a80','#86b6d8','#e0a868','#bccb72','#d79ac0','#78c9bd','#a6a6dc','#e29a84'];
+function isDark(){ const r=document.documentElement.getAttribute('data-theme'); return r==='dark' || (r!=='light' && matchMedia('(prefers-color-scheme: dark)').matches); }
+function colorOf(g,id){ const i=g.players.findIndex(p=>p.id===id); const pal=isDark()?PAL_D:PAL; return pal[(i<0?0:i)%pal.length]; }
+function renderReport(g){
+  if(!g.players.length) return `<div class="panel">${exampleNote(g)}<div class="empty">Add players and log an episode to see the report.</div></div>`;
+  if(!g.episodes.length) return `<div class="panel">${exampleNote(g)}<div class="empty">Log episode 1 on the Episodes tab to see rankings here.</div></div>`;
+  const R=score; if(!R||!R.snaps||!R.snaps.length) return `<div class="panel"><div class="empty">Working out the scores…</div></div>`;
+  const last=R.snaps[R.snaps.length-1], prev=R.snaps[R.snaps.length-2];
+  const traitorsOut=Object.entries(last.out).filter(([id,o])=>o.role==='Traitor');
+  const ranked=[...last.inPlay].sort((a,b)=>last.score[b]-last.score[a] || pname(g,a).localeCompare(pname(g,b)));
+  const maxAbs=Math.max(1,...g.players.map(p=>Math.abs(last.score[p.id])));
+  const top=ranked[0];
+  const hasKnown = R.known && Object.keys(R.known).length>0;
+  const trNow = (last.traitors||[]).slice().sort((a,b)=>last.rank[a]-last.rank[b]);
+  const isT = id => showT && (last.traitors||[]).includes(id);
+  const cards=`<div class="cards">
+    <div class="card"><span class="label">Logged</span><span class="big">Episode ${last.n}</span><span class="muted small">${R.rt} roundtable${R.rt===1?'':'s'} scored</span></div>
+    <div class="card"><span class="label">Still in play</span><span class="big num">${last.inPlay.length}</span><span class="muted small">of ${g.players.length} players</span></div>
+    <div class="card"><span class="label">Traitors revealed</span><span class="big num">${traitorsOut.length}</span><span class="muted small">${traitorsOut.map(([id])=>esc(pname(g,id))).join(', ')||'None yet'}</span></div>
+    ${hasKnown && showT?`<div class="card"><span class="label">Traitors still in play</span><span class="big num">${trNow.length}</span><span class="muted small">${trNow.map(id=>esc(pname(g,id))+' #'+last.rank[id]).join(', ')||'None'}</span></div>`:''}
+    <div class="card"><span class="label">Top suspect</span><span class="big">${top?esc(pname(g,top)):'—'}</span><span class="muted small">${top?'Score '+fmt(last.score[top]):''}</span></div></div>`;
+  const rows=ranked.map(id=>{
+    const r=last.rank[id], pr=prev&&prev.rank[id]; const d=pr? pr-r : 0;
+    const dl= !prev||pr===undefined? '<span class="delta muted">new</span>' : d>0? `<span class="delta up">▲${d}</span>` : d<0? `<span class="delta down">▼${-d}</span>` : '<span class="delta muted">–</span>';
+    const s=last.score[id], w=Math.min(50,Math.abs(s)/maxAbs*50);
+    const bar=`<div class="bar"><span style="${s>=0?`left:50%;width:${w}%;background:var(--traitor)`:`left:${50-w}%;width:${w}%;background:var(--faithful)`}"></span><i class="zero"></i></div>`;
+    const lg=R.log[id]; const lastClue=lg.length? lg[lg.length-1] : null;
+    const isOpen=expanded===id;
+    return `<tr class="click ${highlight===id?'sel':''}" data-act="expand" data-pid="${esc(id)}"><td class="rank">${r}</td><td><b>${esc(pname(g,id))}</b>${isT(id)?' <span class="pill t">Traitor</span>':''}<div class="muted small">${lastClue?esc(lastClue.label)+' (ep '+lastClue.n+')':'No clues yet'}</div></td><td>${dl}</td><td class="r num">${fmt(s)}</td><td class="r num">${chanceTxt(last,id)}</td><td style="width:20%">${bar}</td></tr>
+      ${isOpen?`<tr><td></td><td colspan="5"><div class="clues">${lg.length? lg.map(c=>`<div class="clue"><span class="muted num">Ep ${c.n}</span><span>${esc(c.label)}</span><span class="num">${fmt(c.v)}</span></div>`).join('') : '<span class="muted">No clues have fired for this player yet.</span>'}</div></td></tr>`:''}`;
+  }).join('');
+  const outRows=Object.entries(last.out).sort((a,b)=>a[1].n-b[1].n).map(([id,o])=>{
+    const how={murdered:'Murdered',banished:'Banished',left:'Left'}[o.how]; const cls=o.role==='Traitor'?'t':o.role==='Faithful'?'f':'n';
+    return `<tr><td>${esc(pname(g,id))}</td><td class="muted">${how}, episode ${o.n}</td><td><span class="pill ${cls}">${o.role||'Role unknown'}</span></td><td class="r num">${fmt(last.score[id])}</td></tr>`; }).join('');
+  return `<div class="panel">${exampleNote(g)}${missingNote(g)}
+    <div class="row spread"><h2>Report after ${g.episodes.some(e=>e.isFinal && e.n===last.n)?'the final (episode '+last.n+')':'episode '+last.n}</h2>
+      <div class="row"><label class="label" for="reportSet">Points used</label><select id="reportSet">${(R.sets||[]).map(o=>`<option value="${esc(o.key)}" ${o.key===R.set?'selected':''}>${esc(o.label)}${o.key===g.pointSet?' (game default)':''}</option>`).join('')}</select></div></div>
+    ${R.set!==g.pointSet?`<p class="muted small">Showing this report with ${esc((R.sets.find(o=>o.key===R.set)||{}).label||'')}. The game's saved setting on the Points tab hasn't changed.</p>`:''}
+    ${cards}
+    ${hasKnown?`<div class="row"><label class="small"><input type="checkbox" id="showT" data-act="show-traitors" ${showT?'checked':''}> Show who the Traitors are</label><span class="muted small">Untick before showing this screen to someone who hasn't watched yet.</span></div>`:''}
+    <div class="section"><h3>Current ranking</h3><p class="muted small">Players still in play, most suspicious first. Higher score leans Traitor. Chance combines the scores with the possible Traitor groups below. The arrow shows the change in rank since the previous episode. Tap a player to see every clue behind their score.</p>
+      <div class="tablewrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Move</th><th class="r">Score</th><th class="r" title="Chance of being a Traitor, from the possible groups weighted by points">Chance</th><th>Leans Faithful · Traitor</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="muted">Nobody is left in play.</td></tr>'}</tbody></table></div></div>
+    ${groupsSection(g,R)}
+    <div class="section"><div class="row spread"><h3>How it changed</h3><div class="seg" role="group" aria-label="Chart shows"><button data-act="mode" data-mode="rank" aria-pressed="${chartMode==='rank'}">Rank</button><button data-act="mode" data-mode="score" aria-pressed="${chartMode==='score'}">Score</button><button data-act="mode" data-mode="chance" aria-pressed="${chartMode==='chance'}">Chance</button></div></div>
+      <p class="muted small">${chartMode==='chance'?'Chance of being a Traitor after each episode, from the possible groups weighted by points. A line ends when the player leaves.':chartMode==='rank'?'Rank among players still in play after each episode; 1 is the top suspect. A line ends when the player leaves, marked T (revealed Traitor), F (revealed Faithful) or ? (role unknown).':'Running score after each episode. Above zero leans Traitor, below leans Faithful.'} Tap a name to pick out one line.</p>
+      ${chart(g,R)}
+      <div class="legend">${g.players.map(p=>`<button data-act="hl" data-pid="${esc(p.id)}" aria-pressed="${highlight===p.id}"><i style="background:${colorOf(g,p.id)}"></i>${esc(p.name)}${showT&&R.known&&R.known[p.id]?' <b style="color:var(--traitor)">T</b>':''}</button>`).join('')}</div>${hasKnown&&showT?'<p class="muted small">Traitors you recorded are drawn with thicker lines and marked T.</p>':''}</div>
+    ${outRows?`<div class="section"><h3>Out of the game</h3><div class="tablewrap"><table><thead><tr><th>Player</th><th>How</th><th>Role</th><th class="r">Final score</th></tr></thead><tbody>${outRows}</tbody></table></div></div>`:''}
+    ${hasKnown && showT ? accuracySection(g,R) : ''}
+    <div class="section rw-only"><div class="row spread"><h3>Saved reports</h3><button class="btn primary" data-act="save-report">Save report for episode ${last.n}</button></div>
+      <p class="muted small">Saves a standalone page, using the points chosen above, in the <span class="num">reports</span> folder next to server.py, so you keep a snapshot of how things looked after each episode.</p>
+      ${savedReports.length? `<div class="eplist">${savedReports.map(r=>`<div class="eprow"><span class="epn">Ep ${r.episode}</span><div class="sum"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.file)}</a><span class="muted small">saved ${esc(r.created.replace('T',' '))}</span></div><div></div></div>`).join('')}</div>` : '<p class="muted small">No reports saved yet.</p>'}</div>
+    <div class="section rw-only"><div class="row spread"><h3>Export as web pages</h3><button class="btn" data-act="export">Export this game</button></div>
+      <p class="muted small">Writes a folder of plain web pages: the report for every point set (with a menu to switch between them) and an Episodes page with everything you've logged. It needs no server, so you can open it straight from the folder or upload it to any web host. Re-export after each episode to update it.</p>
+      ${exportInfo&&exportInfo.folder?`<p class="small">Last export: <a href="${esc(exportInfo.url)}" target="_blank" rel="noopener">open it</a> · <span class="num muted">${esc(exportInfo.folder)}</span></p>`:''}</div>
+    <div class="section"><h3>Reading the scores</h3><p class="muted small" style="max-width:75ch">The method is Hannah Fry's, from <a href="https://www.youtube.com/watch?v=twDvxNooI_4" target="_blank" rel="noopener">How would Alan Turing have played the Traitors?</a>. Across 20 completed seasons these clues ranked a random Traitor above a random Faithful about 58–59% of the time, against 50% for guessing. Treat the ranking as a nudge, not a verdict, and expect it to say little until the first Traitor is banished, since most clues fire on that night.</p></div>
+  </div>`;
+}
+
+function accuracySection(g,R){
+  const rows=R.snaps.filter(s=>(s.traitors||[]).length || s.accuracy!=null).map(s=>{ const tr=(s.traitors||[]).slice().sort((a,b)=>s.rank[a]-s.rank[b]);
+    const a=s.accuracy; const cls=a==null?'n':a>0.6?'f':a<0.45?'t':'n';
+    return `<tr><td class="num">Ep ${s.n}</td><td>${tr.map(id=>`${esc(pname(g,id))} <span class="num muted">#${s.rank[id]}</span>`).join(', ')||'<span class="muted">none in play</span>'} <span class="muted small">of ${s.inPlay.length}</span></td><td class="r">${a==null?'<span class="muted">—</span>':`<span class="pill ${cls}">${Math.round(a*100)}%</span>`}</td></tr>`; }).join('');
+  if(!rows) return '';
+  return `<div class="section"><h3>Where the Traitors rank</h3><p class="muted small">Based on the Traitors you recorded. The last column is the chance a Traitor still in play scores above a Faithful after each episode: 50% is guessing, higher means the points are finding them.</p>
+    <div class="tablewrap"><table><thead><tr><th>After</th><th>Traitors in play and their rank</th><th class="r">Traitor above Faithful</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+const pctf = v=>v==null?'—':(v*100<1&&v>0?'<1%':Math.round(v*100)+'%');
+function chanceTxt(snap,id){ const G=snap.groups; if(!G||G.capped) return '<span class="muted">—</span>'; return pctf(G.chance[id]); }
+function groupsSection(g,R){
+  const S=R.snaps, last=S[S.length-1], G=last.groups; if(!G) return '';
+  const nm=id=>esc(pname(g,id)); const rules=R.rules||{};
+  const word=G.size===1?'Traitor':'Traitors';
+  const RO=G.ruledOut||{}; const totalRuled=Object.values(RO).reduce((a,b)=>a+b,0);
+  const ruled=[RO.sameGroup?`${RO.sameGroup.toLocaleString()} too alike`:'', RO.breakfast?`${RO.breakfast.toLocaleString()} together at breakfast`:'', RO.car?`${RO.car.toLocaleString()} together in a car`:'', RO.adjacent?`${RO.adjacent.toLocaleString()} side by side at a roundtable`:''].filter(Boolean).join(', ');
+  const trend=S.map(s=>`<tr><td class="num">Ep ${s.n}</td><td class="r num">${s.groups?s.groups.size:'—'}</td><td class="r num">${s.groups&&!s.groups.capped?s.groups.count.toLocaleString():'—'}</td></tr>`).join('');
+  const chances=last.inPlay.slice().sort((a,b)=>((G.chance||{})[b]||0)-((G.chance||{})[a]||0)).map(id=>{ const v=(G.chance||{})[id]||0;
+    return `<tr><td>${nm(id)}${showT&&(last.traitors||[]).includes(id)?' <span class="pill t">Traitor</span>':''}</td><td class="r num">${pctf(v)}</td><td style="width:45%"><div class="bar"><span style="left:0;width:${Math.round(v*100)}%;background:var(--accent)"></span></div></td><td class="r num muted">${fmt(last.score[id])}</td></tr>`; }).join('');
+  const top=(G.top||[]).map(t=>`<tr><td>${t.members.map(nm).join(', ')}</td><td class="r num">${fmt(t.points)}</td><td class="r num">${pctf(t.share)}</td></tr>`).join('');
+  return `<div class="section"><h3>Who could the Traitors be?</h3>
+    <p class="muted small" style="max-width:78ch">Fry's “possible universes”: every group of ${G.size} ${word} who could still be hiding among the ${last.inPlay.length} players in play. Anyone murdered or banished is crossed off, and each remaining group is weighted by its members' points (a group's weight is e<sup>points</sup>, because each point is a log-likelihood). A player's chance is the share of that weight in groups that include them.</p>
+    <div class="cards">
+      <div class="card"><span class="label">At the start</span><span class="big num">${G.start.toLocaleString()}</span><span class="muted small">possible groups of ${rules.startTraitorsUsed||3}</span></div>
+      <div class="card"><span class="label">Still possible</span><span class="big num">${G.capped?'too many':G.count.toLocaleString()}</span><span class="muted small">groups of ${G.size} after episode ${last.n}</span></div>
+      <div class="card"><span class="label">Ruled out by rules</span><span class="big num">${totalRuled.toLocaleString()}</span><span class="muted small">${ruled||'none this episode'}</span></div>
+    </div>
+    ${showT && G.recordedRuledOut ? `<p class="note warn small">The Traitors you recorded have been crossed off by one of Fry's rules (${({sameGroup:'they share a group label',breakfast:'three of them came to breakfast together',car:'three of them shared a car',adjacent:'three of them sat side by side'})[G.recordedRuledOut]}), so their real group isn't among the possible groups. Turn that rule off on the Points tab to compare.</p>` : ''}
+    ${G.capped?'<p class="note small">There are too many possible groups to list right now. Chances appear once a few more players have left.</p>':`
+    <div class="tablewrap"><table><thead><tr><th>Player</th><th class="r">Chance of being a Traitor</th><th></th><th class="r">Points</th></tr></thead><tbody>${chances}</tbody></table></div>
+    ${top?`<h3 style="margin-top:6px">Most likely groups</h3><div class="tablewrap"><table><thead><tr><th>Group</th><th class="r">Combined points</th><th class="r">Share of weight</th></tr></thead><tbody>${top}</tbody></table></div>`:''}`}
+    <details><summary class="small">How the count fell, episode by episode</summary><div class="tablewrap"><table><thead><tr><th>After</th><th class="r">Traitors in play</th><th class="r">Possible groups</th></tr></thead><tbody>${trend}</tbody></table></div></details>
+    <p class="muted small">Group size is the Traitors at the start, plus recruits recorded, minus Traitors who have left. Fry's rules (set on the Points tab) also cross off any group in which three or more members share a label, came to breakfast together, rode in the same car, or sat side by side at a roundtable.${G.sightingsFrom&&G.sightingsFrom.breakfastCars>1?` After a recruitment, earlier sightings stop counting, since any of them could have been a Faithful then: breakfast and cars count from episode ${G.sightingsFrom.breakfastCars}, roundtable seating from episode ${G.sightingsFrom.roundtable}.`:''}</p></div>`;
+}
+function chart(g,R){
+  const S=R.snaps, W=760, H=chartMode==='rank'?340:300, L=44, Rm=96, T=16, B=34;
+  const chanceOf=(s,id)=>s.groups&&s.groups.chance&&s.groups.chance[id]!=null?s.groups.chance[id]:null;
+  const xs=S.map(s=>s.n); const x=i=> S.length===1? L+(W-L-Rm)/2 : L+i*(W-L-Rm)/(S.length-1);
+  let y, ticks=[];
+  const dark=isDark();
+  if(chartMode==='rank'){
+    const maxR=Math.max(1,...S.map(s=>Math.max(0,...Object.values(s.rank))));
+    y=r=>T+(r-1)*(H-T-B)/Math.max(1,maxR-1);
+    const step=maxR>12?3:maxR>6?2:1; for(let r=1;r<=maxR;r+=step) ticks.push([r,y(r)]);
+  } else if(chartMode==='chance'){
+    y=v=>T+(1-v)*(H-T-B);
+    [0,0.25,0.5,0.75,1].forEach(v=>ticks.push([v,y(v)]));
+  } else {
+    let lo=0,hi=0; S.forEach(s=>Object.values(s.score).forEach(v=>{lo=Math.min(lo,v);hi=Math.max(hi,v);}));
+    lo=Math.floor(lo*2)/2-0.5; hi=Math.ceil(hi*2)/2+0.5;
+    y=v=>T+(hi-v)*(H-T-B)/(hi-lo);
+    const span=hi-lo, step=span>8?2:span>4?1:0.5; for(let v=Math.ceil(lo/step)*step; v<=hi+1e-9; v+=step) ticks.push([+v.toFixed(2),y(v)]);
+  }
+  const grid=ticks.map(([v,yy])=>`<line x1="${L}" x2="${W-Rm}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="${chartMode==='score'&&v===0?1.5:1}"/><text x="${L-8}" y="${yy+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${chartMode==='chance'?Math.round(v*100)+'%':(chartMode==='score'&&v>0?'+':'')+v}</text>`).join('');
+  const xl=S.map((s,i)=>`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono, monospace">${S.length>14&&i%2?'':'Ep '+s.n}</text>`).join('');
+  const lines=[], labels=[];
+  const order=[...g.players].sort((a,b)=>(a.id===highlight)-(b.id===highlight));
+  order.forEach(p=>{
+    const pts=[]; let endMark=null;
+    S.forEach((s,i)=>{
+      if(chartMode==='rank'){ if(s.rank[p.id]!==undefined) pts.push([x(i),y(s.rank[p.id])]); }
+      else if(chartMode==='chance'){ const c=chanceOf(s,p.id); if(c!=null) pts.push([x(i),y(c)]); }
+      else { const o=s.out[p.id]; if(!o || o.n===s.n) pts.push([x(i),y(s.score[p.id])]); }
+      const o=s.out[p.id]; if(o && o.n===s.n && !endMark) endMark={i, o};
+    });
+    if(!pts.length) return;
+    const dim = highlight && highlight!==p.id; const col=dim?'var(--chart-dim)':colorOf(g,p.id);
+    const knownT = showT && R.known && R.known[p.id];
+    const w = highlight===p.id?3.4:(knownT?2.8:1.6), op=dim?0.55:0.95;
+    if(pts.length>1) lines.push(`<polyline fill="none" stroke="${col}" stroke-width="${w}" stroke-opacity="${op}" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(q=>q.map(v=>v.toFixed(1)).join(',')).join(' ')}"/>`);
+    const lp=pts[pts.length-1];
+    lines.push(`<circle cx="${lp[0].toFixed(1)}" cy="${lp[1].toFixed(1)}" r="${highlight===p.id?4.5:3}" fill="${col}" fill-opacity="${op}"/>`);
+    if(endMark){ const m=endMark.o.role==='Traitor'?'T':endMark.o.role==='Faithful'?'F':'?';
+      lines.push(`<text x="${(lp[0]+6).toFixed(1)}" y="${(lp[1]+4).toFixed(1)}" font-size="10" font-weight="700" fill="${endMark.o.role==='Traitor'?'var(--traitor)':endMark.o.role==='Faithful'?'var(--faithful)':'var(--muted)'}" fill-opacity="${dim?0.5:1}">${m}</text>`); }
+    else if(lp[0]>=x(S.length-1)-0.5 && (!highlight || highlight===p.id)) labels.push({y:lp[1], name:p.name, col});
+  });
+  labels.sort((a,b)=>a.y-b.y); let lastY=-99; const lab=labels.map(l=>{ const yy=Math.max(l.y+4,lastY+12); lastY=yy; return `<text x="${W-Rm+8}" y="${yy.toFixed(1)}" font-size="11" fill="${l.col}" font-family="IBM Plex Sans, sans-serif">${esc(l.name)}</text>`; }).join('');
+  const cap=chartMode==='chance'?`<text x="${L}" y="${T-4}" font-size="10" fill="var(--muted)">chance of being a Traitor</text>`:chartMode==='rank'?`<text x="${L}" y="${T-4}" font-size="10" fill="var(--muted)">most suspicious</text>`:`<text x="${L}" y="${T-4}" font-size="10" fill="var(--muted)">leans Traitor ↑</text>`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${chartMode==='rank'?'Rank':chartMode==='chance'?'Chance of being a Traitor':'Score'} of each player after every episode">${grid}${xl}${lines.join('')}${lab}${cap}</svg>`;
+}
+
+/* ---------------- events ---------------- */
+function setTab(t){ tab=t; lsSet('rl.tab',t); if(t!=='episodes') editing=null; render(); }
+const blankEp = n => ({n, traitors:[], recruits:[], recruitTiming:{}, murdered:[], shields:[], left:[], leftRoles:{}, breakfast:{}, cars:{}, seats:[], votes:{}, revote:{}, moreRevotes:[], banished:'', role:'', recruitedEp:null, notes:'', isFinal:false, extraRounds:[]});
+document.addEventListener('click', async ev=>{
+  const tb=ev.target.closest('nav.tabs button'); if(tb){ setTab(tb.dataset.tab); return; }
+  const b=ev.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, g=game();
+  if(busy && !['expand','hl','mode'].includes(act)) return;
+  try{ switch(act){
+    case 'new-game': await newGame(); break;
+    case 'add-players': {
+      const names=$('#addNames').value.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+      if(!names.length){ toast('Type at least one name.'); return; }
+      const res=await run(()=>api('POST',`/api/games/${g.id}/players`,{names}), r=> r.added? `Added ${r.added} player${r.added===1?'':'s'}` : 'Those names are already in the cast.');
+      await applyGame(res); break; }
+    case 'del-player': await applyGame(await run(()=>api('DELETE',`/api/games/${g.id}/players/${b.dataset.pid}`),'Removed')); break;
+    case 'del-game-ask': $('#delConfirm').hidden=false; break;
+    case 'del-game-cancel': $('#delConfirm').hidden=true; break;
+    case 'del-game': { const nm=g.name; await run(()=>api('DELETE',`/api/games/${g.id}`),`Deleted “${nm}”`); currentId=''; await refreshList(); await loadCurrent(); render(); break; }
+    case 'new-ep': editing={gameId:currentId, ep:blankEp(+b.dataset.n)}; render(); window.scrollTo(0,0); break;
+    case 'edit-ep': { const e=g.episodes.find(x=>x.n===+b.dataset.n); editing={gameId:currentId, ep:Object.assign(blankEp(e.n), JSON.parse(JSON.stringify(e)))}; render(); window.scrollTo(0,0); break; }
+    case 'cancel-ep': editing=null; render(); break;
+    case 'toggle-murder': toggleIn(editing.ep,'murdered',b.dataset.pid); render(); break;
+    case 'toggle-shield': toggleIn(editing.ep,'shields',b.dataset.pid); render(); break;
+    case 'toggle-traitor': toggleIn(editing.ep,'traitors',b.dataset.pid); render(); break;
+    case 'toggle-recruit': toggleIn(editing.ep,'recruits',b.dataset.pid); editing.ep.recruitTiming=editing.ep.recruitTiming||{}; if(!(b.dataset.pid in editing.ep.recruitTiming)) editing.ep.recruitTiming[b.dataset.pid]='after'; render(); break;
+    case 'show-traitors': showT=!showT; lsSet('rl.showT',showT?'1':'0'); render(); break;
+    case 'toggle-left': toggleIn(editing.ep,'left',b.dataset.pid); render(); break;
+    case 'seat-add': editing.ep.seats=(editing.ep.seats||[]).concat(b.dataset.pid); render(); break;
+    case 'seat-del': editing.ep.seats.splice(+b.dataset.i,1); render(); break;
+    case 'seat-clear': editing.ep.seats=[]; render(); break;
+    case 'seat-copy': { const src=g.episodes.find(x=>x.n===+b.dataset.from); const alive=new Set(aliveBefore(g,editing.ep.n).map(p=>p.id)); (editing.ep.murdered||[]).forEach(x=>alive.delete(x)); editing.ep.seats=(src.seats||[]).filter(id=>alive.has(id)); render(); toast('Copied, minus anyone who has left'); break; }
+    case 'toggle-final': editing.ep.isFinal=!editing.ep.isFinal; render(); break;
+    case 'xr-add': editing.ep.extraRounds=(editing.ep.extraRounds||[]).concat({votes:{},revote:{},moreRevotes:[],banished:'',role:''}); render(); break;
+    case 'xr-del': editing.ep.extraRounds.splice(+b.dataset.r,1); render(); break;
+    case 're-add': { const src=roundSrc(editing.ep,+b.dataset.r); src._nRe=reCount(src)+1; render(); break; }
+    case 're-del': { const src=roundSrc(editing.ep,+b.dataset.r); const n=reCount(src); if(n){ const k=reKeys(n)[n-1]; if(k==='revote') src.revote={}; else src.moreRevotes.splice(+k.slice(1)); src._nRe=n-1; } render(); break; }
+    case 'del-ep-ask': $('#epDel').innerHTML='<span class="small">Delete this episode?</span> <button class="btn danger sm" data-act="del-ep">Delete</button> <button class="btn sm ghost" data-act="del-ep-keep">Keep</button>'; break;
+    case 'del-ep-keep': $('#epDel').innerHTML='<button class="btn danger sm" data-act="del-ep-ask">Delete episode</button>'; break;
+    case 'del-ep': { const n=editing.ep.n; const res=await run(()=>api('DELETE',`/api/games/${g.id}/episodes/${n}`),`Deleted episode ${n}`); editing=null; await applyGame(res); break; }
+    case 'save-ep': await saveEpisode(g); break;
+    case 'export': { const r=await run(()=>api('POST',`/api/games/${g.id}/export`), r=>`Exported ${r.files.length} pages`); exportInfo=r; render(); window.open(r.url,'_blank','noopener'); break; }
+    case 'save-report': { const r=await run(()=>api('POST',`/api/games/${g.id}/reports`,{set:score.set}), r=>`Saved ${r.file}`); savedReports=await api('GET',`/api/games/${g.id}/reports`); render(); window.open(r.url,'_blank','noopener'); break; }
+    case 'expand': expanded = expanded===b.dataset.pid? null : b.dataset.pid; highlight=expanded; render(); break;
+    case 'hl': highlight = highlight===b.dataset.pid? null : b.dataset.pid; render(); break;
+    case 'mode': chartMode=b.dataset.mode; render(); break;
+  } }catch(e){ /* message already shown */ }
+});
+function toggleIn(obj,key,id){ const a=obj[key]||[]; obj[key]= a.includes(id)? a.filter(x=>x!==id) : a.concat(id); }
+async function saveEpisode(g){
+  const e=editing.ep;
+  e.role = e.banished ? roleOf(g,e,e.banished).role : '';
+  const tidy=src=>{ delete src._nRe; src.moreRevotes=(src.moreRevotes||[]).slice(0, Math.max(0, filledRe(src)-1)); };
+  tidy(e);
+  (e.extraRounds||[]).forEach(x=>{ x.role = x.banished ? roleOf(g,e,x.banished).role : ''; tidy(x); });
+  const res=await run(()=>api('PUT',`/api/games/${g.id}/episodes/${e.n}`,e),`Saved episode ${e.n}`);
+  editing=null; await applyGame(res);
+}
+document.addEventListener('change', async ev=>{
+  const t=ev.target, g=game();
+  try{
+    if(t.id==='reportSet'){ reportSet=t.value; await run(loadScore); render(); return; }
+    if(t.id==='gameSel'){ currentId=t.value; lsSet('rl.current',currentId); editing=null; expanded=null; highlight=null; reportSet=null; exportInfo=null; await run(loadCurrent); render(); return; }
+    if(!g) return;
+    if(t.id==='gameName'){ const v=t.value.trim(); if(v){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{name:v}),'Renamed')); } return; }
+    if(t.dataset.pgroup){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pgroup}`,{group:t.value.trim()}),'Saved')); return; }
+    if(t.dataset.rule){ const v=t.type==='checkbox'?t.checked:t.value; await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{rules:{[t.dataset.rule]:v}}),'Saved')); return; }
+    if(t.dataset.pid && t.closest('.pitem')){ const v=t.value.trim(); if(v){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pid}`,{name:v}),'Renamed')); } return; }
+    if(editing){
+      const e=editing.ep;
+      if(t.dataset.bf){ e.breakfast=e.breakfast||{}; e.breakfast[t.dataset.bf]=+t.value; render(); return; }
+      if(t.dataset.car){ e.cars=e.cars||{}; e.cars[t.dataset.car]=+t.value; return; }
+      if(t.dataset.rv!==undefined){ ballotObj(roundSrc(e,+t.dataset.rv), t.dataset.k)[t.dataset.pid]=t.value; render(); return; }
+      if(t.dataset.xr!==undefined){ e.extraRounds[+t.dataset.xr].banished=t.value; render(); return; }
+      if(t.dataset.leftrole){ e.leftRoles=e.leftRoles||{}; e.leftRoles[t.dataset.leftrole]=t.value; return; }
+      if(t.dataset.rtiming){ e.recruitTiming=e.recruitTiming||{}; e.recruitTiming[t.dataset.rtiming]=t.value; return; }
+      if(t.dataset.field==='recruitedEp'){ e.recruitedEp=t.value?+t.value:null; return; }
+      if(t.dataset.field){ e[t.dataset.field]=t.value; if(t.dataset.field==='role'||t.dataset.field==='banished') render(); return; }
+    }
+    if(t.id==='setSel'){ const k=t.value; if(SETS[k]) await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{pointSet:k}),'Switched to '+SETS[k].label)); return; }
+    if(t.dataset.pt){ const v=parseFloat(t.value); if(!isNaN(v)){ const body={points:{[t.dataset.pt]:v}}; if(!(t.dataset.pt in EXTRA)) body.pointSet='custom'; await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,body),'Saved')); } return; }
+    if(t.dataset.extra){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{extras:{[t.dataset.extra]:t.checked}}),'Saved')); return; }
+  }catch(e){ /* shown */ }
+});
+document.addEventListener('input', ev=>{ if(editing && ev.target.id==='epNotes') editing.ep.notes=ev.target.value; });
+
+/* roundtable seating: drag and drop, plus arrow keys */
+let drag=null;  // {seat:i} or {pid}
+function clearDropMarks(){ document.querySelectorAll('.drop-before,.drop-after,.drop-end').forEach(el=>el.classList.remove('drop-before','drop-after','drop-end')); }
+function moveSeat(from,to){ const s=editing.ep.seats; if(to<0||to>=s.length||from===to) return; const [x]=s.splice(from,1); s.splice(to,0,x); }
+document.addEventListener('dragstart', ev=>{
+  if(!editing || READONLY) return;
+  const seat=ev.target.closest && ev.target.closest('.seat'); const chip=ev.target.closest && ev.target.closest('.chip[data-act="seat-add"]');
+  if(seat){ drag={seat:+seat.dataset.seat}; seat.classList.add('dragging'); }
+  else if(chip){ drag={pid:chip.dataset.pid}; }
+  else return;
+  ev.dataTransfer.effectAllowed='move'; try{ ev.dataTransfer.setData('text/plain','seat'); }catch(e){}
+});
+document.addEventListener('dragend', ()=>{ drag=null; clearDropMarks(); document.querySelectorAll('.dragging').forEach(el=>el.classList.remove('dragging')); });
+document.addEventListener('dragover', ev=>{
+  if(!drag) return;
+  const list=ev.target.closest && ev.target.closest('#seatList'); if(!list) return;
+  ev.preventDefault(); ev.dataTransfer.dropEffect='move'; clearDropMarks();
+  const seat=ev.target.closest('.seat');
+  if(seat){ const r=seat.getBoundingClientRect(); seat.classList.add(ev.clientX < r.left + r.width/2 ? 'drop-before' : 'drop-after'); }
+  else list.classList.add('drop-end');
+});
+document.addEventListener('drop', ev=>{
+  if(!drag) return;
+  const list=ev.target.closest && ev.target.closest('#seatList'); if(!list){ return; }
+  ev.preventDefault();
+  const s=editing.ep.seats=(editing.ep.seats||[]);
+  const seat=ev.target.closest('.seat');
+  let to=s.length;
+  if(seat){ const r=seat.getBoundingClientRect(); to=+seat.dataset.seat + (ev.clientX < r.left + r.width/2 ? 0 : 1); }
+  if(drag.seat!==undefined){ const from=drag.seat; const [x]=s.splice(from,1); if(from<to) to--; s.splice(to,0,x); }
+  else if(drag.pid && !s.includes(drag.pid)){ s.splice(to,0,drag.pid); }
+  drag=null; clearDropMarks(); render();
+});
+document.addEventListener('keydown', ev=>{
+  const seat=ev.target.closest && ev.target.closest('.seat'); if(!seat || !editing || READONLY) return;
+  const i=+seat.dataset.seat, n=editing.ep.seats.length;
+  let to=null;
+  if(ev.key==='ArrowLeft'||ev.key==='ArrowUp') to=(i-1+n)%n;
+  else if(ev.key==='ArrowRight'||ev.key==='ArrowDown') to=(i+1)%n;
+  else if(ev.key==='Delete'||ev.key==='Backspace'){ editing.ep.seats.splice(i,1); render(); const nx=document.querySelector(`.seat[data-seat="${Math.min(i,n-2)}"]`); if(nx) nx.focus(); ev.preventDefault(); return; }
+  if(to===null) return;
+  ev.preventDefault(); moveSeat(i,to); render(); const el=document.querySelector(`.seat[data-seat="${to}"]`); if(el) el.focus();
+});
+$('#newGameBtn').addEventListener('click', ()=>{ newGame().catch(()=>{}); });
+async function newGame(){
+  const n=Object.values(games).filter(x=>!x.example).length+1;
+  const g=await run(()=>api('POST','/api/games',{name:'My game '+n}),'Started a new game');
+  currentId=g.id; lsSet('rl.current',g.id); editing=null; tab='players'; lsSet('rl.tab',tab); await applyGame(g);
+  setTimeout(()=>{ const el=$('#gameName'); if(el){ el.focus(); el.select(); } },30);
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(tab==='report') render(); });
+window.addEventListener('themechange',()=>{ if(tab==='report') render(); });
+
+boot();
+})();
+</script>
+</body>
+</html>
