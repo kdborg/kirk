@@ -1,0 +1,49 @@
+Test competition 4 (Sat Oct 17 2026): finalists ranked by points from white wins
+40 finalists, 41 final rounds, 82 games per program (41 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV.
+
+[code]
+ #  Program          W-win pts W wins pts/W win W losses | Overall    Pts  /game
+--------------------------------------------------------------------------------
+ 1  Sightlines19         8,833     33     267.7        8 |       1 21,120  257.6
+ 2  WildCard             8,549     32     267.2        9 |       3 20,945  255.4
+ 3  HighNoon             8,354     31     269.5       10 |       2 21,012  256.2
+ 4  Claude_Rapunzel      8,016     30     267.2       11 |       4 20,521  250.3
+ 5  shot1                7,917     30     263.9       11 |      10 19,639  239.5
+ 6  MrTwit               7,712     29     265.9       12 |       6 20,368  248.4
+ 7  kunio                7,605     29     262.2       12 |       9 19,751  240.9
+ 8  Fabulous             7,604     28     271.6       13 |       5 20,402  248.8
+ 9  FumbleWeed           7,588     29     261.7       12 |      11 19,581  238.8
+10  CrazyZero            7,517     28     268.5       13 |       7 20,294  247.5
+11  tumblebee            7,444     28     265.9       13 |      12 19,444  237.1
+12  rubble               7,212     27     267.1       14 |       8 20,231  246.7
+13  ManifestHextiny      6,906     26     265.6       15 |      13 18,697  228.0
+14  V_1_36_0             6,705     26     257.9       15 |      14 18,511  225.7
+15  Tenuki               6,064     23     263.7       18 |      15 17,623  214.9
+16  McWeed_2_0           5,800     22     263.6       19 |      16 17,491  213.3
+17  Flux                 5,546     21     264.1       20 |      19 16,709  203.8
+18  Kaatua               5,477     21     260.8       20 |      18 16,873  205.8
+19  Abyssal              5,367     20     268.4       21 |      17 17,128  208.9
+20  q                    5,249     20     262.4       21 |      20 16,431  200.4
+21  TBD                  4,492     17     264.2       24 |      21 16,117  196.5
+22  Otter_v0_4           4,462     17     262.5       24 |      22 16,113  196.5
+23  TumbleMonkey         4,241     16     265.1       25 |      23 15,622  190.5
+24  rollweed             3,923     15     261.5       26 |      24 15,225  185.7
+25  Hex2                 3,739     14     267.1       27 |      25 15,125  184.5
+26  hexago_v6_5          3,705     14     264.6       27 |      26 14,771  180.1
+27  turboseed            2,407      9     267.4       32 |      28 13,192  160.9
+28  WeedWhacker*         2,386      9     265.1       32 |      29 13,168  160.6
+29  vlastuin6*           2,357      9     261.9       32 |      27 14,007  170.8
+30  Ole                  2,139      8     267.4       33 |      38  9,889  120.6
+31  OSMNextup            2,108      8     263.5       33 |      30 12,901  157.3
+32  20260918_tw          1,895      7     270.7       34 |      32 12,403  151.3
+33  campagnolo           1,857      7     265.3       34 |      31 12,823  156.4
+34  v3g                  1,590      6     265.0       35 |      33 11,403  139.1
+35  Tumbleweed           1,316      5     263.2       36 |      35 10,787  131.5
+36  ltwd                 1,000      4     250.0       37 |      36  9,972  121.6
+37  Tumbleweed             789      3     263.0       38 |      37  9,927  121.1
+38  lostumbler4            756      3     252.0       38 |      34 10,940  133.4
+39  player_10_12           247      1     247.0       40 |      39  9,793  119.4
+40                           0      0       0.0       41 |      40  9,750  118.9
+[/code]
+
+* unofficial entry. Left out: JelteDestroyer6... / Lightning_McQue... (164 games under one user name, so the entries cannot be separated). Source: codecup.nl, competition 361 results CSV.

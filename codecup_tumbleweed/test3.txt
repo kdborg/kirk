@@ -1,0 +1,39 @@
+Test competition 3 (Sat Oct 03 2026): finalists ranked by points from white wins
+30 finalists, 29 final rounds, 58 games per program (29 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV.
+
+[code]
+ #  Program          W-win pts W wins pts/W win W losses | Overall    Pts  /game
+--------------------------------------------------------------------------------
+ 1  HighNoon             6,428     24     267.8        5 |       1 15,026  259.1
+ 2  DustDevil            6,401     24     266.7        5 |       2 14,928  257.4
+ 3  Sightlines16         5,876     22     267.1        7 |       3 14,663  252.8
+ 4  Claude_Rapunzel      5,645     21     268.8        8 |       5 14,606  251.8
+ 5  rubble               5,640     22     256.4        7 |       8 13,659  235.5
+ 6  CrazyZero            5,637     21     268.4        8 |       6 14,451  249.2
+ 7  MrTwit               5,437     20     271.9        9 |       4 14,620  252.1
+ 8  tumblebee            5,318     20     265.9        9 |       7 13,996  241.3
+ 9  kunio                4,962     20     248.1        9 |       9 13,027  224.6
+10  V_1_36_0             4,611     18     256.2       11 |      10 12,812  220.9
+11  Kaatua               4,147     16     259.2       13 |      11 12,247  211.2
+12  FumbleWeed           4,022     16     251.4       13 |      13 11,715  202.0
+13  TBD                  3,345     13     257.3       16 |      12 11,739  202.4
+14  Otter_v0_3           2,911     11     264.6       18 |      14 11,198  193.1
+15  TumbleMonkey         2,887     11     262.5       18 |      17 11,064  190.8
+16  Flux                 2,613     10     261.3       19 |      15 11,152  192.3
+17  vlastuin6*           2,570     10     257.0       19 |      19 10,068  173.6
+18  Hex_tower_test       2,365      9     262.8       20 |      21  9,946  171.5
+19  rollweed             2,305      9     256.1       20 |      16 11,130  191.9
+20  McWeed_1_0           2,099      8     262.4       21 |      22  9,943  171.4
+21  hexago_v6_5          1,838      7     262.6       22 |      18 10,179  175.5
+22  OSMAlfaberra         1,818      7     259.7       22 |      23  9,915  170.9
+23  WeedWhacker*         1,813      7     259.0       22 |      25  9,289  160.2
+24  Lightning_McQue.     1,581      6     263.5       23 |      20 10,042  173.1
+25  turboseed            1,570      6     261.7       23 |      26  9,277  159.9
+26  20260918_tw          1,563      6     260.5       23 |      27  8,672  149.5
+27  ManifestHextiny      1,530      6     255.0       23 |      24  9,532  164.3
+28  v3g                    529      2     264.5       27 |      28  7,654  132.0
+29  BasicBot               252      1     252.0       28 |      29  6,884  118.7
+30  lostumbler3              0      0       0.0       29 |      30  6,618  114.1
+[/code]
+
+* unofficial entry. Source: codecup.nl, competition 362 results CSV.

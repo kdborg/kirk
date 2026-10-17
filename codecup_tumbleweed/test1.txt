@@ -1,0 +1,25 @@
+Test competition 1 (Sat Sep 05 2026): finalists ranked by points from white wins
+16 finalists, 15 final rounds, 30 games per program (15 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV.
+
+[code]
+ #  Program          W-win pts W wins pts/W win W losses | Overall    Pts  /game
+--------------------------------------------------------------------------------
+ 1  CrazyZero            2,947     11     267.9        4 |       1  7,529  251.0
+ 2  HighNoon             2,891     11     262.8        4 |       2  7,446  248.2
+ 3  MrTwit               2,869     11     260.8        4 |       3  7,406  246.9
+ 4  DustDevil            2,615     10     261.5        5 |       4  7,155  238.5
+ 5  Claude_Rapunzel      2,583     10     258.3        5 |       5  7,047  234.9
+ 6  SightLines           2,348      9     260.9        6 |       6  6,741  224.7
+ 7  Kaatua               2,048      8     256.0        7 |       8  6,031  201.0
+ 8  tumblebee            1,840      7     262.9        8 |       7  6,129  204.3
+ 9  TBD                  1,550      6     258.3        9 |      10  5,656  188.5
+10  V_1_24_0             1,316      5     263.2       10 |       9  5,787  192.9
+11  FumbleWeed           1,283      5     256.6       10 |      11  5,361  178.7
+12  McWeed_1_0           1,054      4     263.5       11 |      12  4,960  165.3
+13  hexago_v4_4            543      2     271.5       13 |      13  4,692  156.4
+14  vlastuin6*             283      1     283.0       14 |      14  4,582  152.7
+15  Otter_v0_1f            248      1     248.0       14 |      16  3,519  117.3
+16  v2b                      0      0       0.0       15 |      15  3,799  126.6
+[/code]
+
+* unofficial entry. Source: codecup.nl, competition 364 results CSV.
