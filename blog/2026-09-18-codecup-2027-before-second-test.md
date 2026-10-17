@@ -33,4 +33,4 @@ From the competition forum, there is strong evidence that most of the starting l
 
 The thread in the forum suggested adding an extra random move for the red player at the beginning of the game to balance out the starting advantage.  The competitors' research showed that the red player would win 98% of the time with the original rules.  This advantage was reduced to 75% when adding a third move.  Others have reported over 90% in favor of the red player for the original rules.
 
-Fable 5 was asked to do a similar analysis with the current program.  //****TODO: Results coming.
+Fable 5 was asked to do a similar analysis with the current program.  The results aligned with the posts in the forum.
