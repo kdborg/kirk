@@ -13,6 +13,7 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("ai");
     eleventyConfig.addPassthroughCopy("kirkle");
     eleventyConfig.addPassthroughCopy("traitors");
+    eleventyConfig.addPassthroughCopy("codecup_tumbleweed");
     eleventyConfig.addPassthroughCopy("images");
     eleventyConfig.addPassthroughCopy("theme.css");
     eleventyConfig.addPassthroughCopy("theme.js");

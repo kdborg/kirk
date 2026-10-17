@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBBRM18RR7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-SBBRM18RR7');
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeCup 2027 Tumbleweed: white-wins rankings</title>
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--fg);
+            background: var(--bg);
+        }
+
+        main {
+            margin: 0;
+            padding: 1.5em;
+        }
+
+        /* Theme-aware overrides for the inline .ww-table styles. */
+        html .ww-table th,
+        html .ww-table td {
+            border-bottom-color: var(--border);
+        }
+
+        html[data-theme='dark'] .ww-table tr.ours td {
+            background: #24452c;
+        }
+
+        html .ww-note {
+            color: var(--fg-muted);
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">
+            <span class="monogram">KDB</span>
+            <span class="brand-text">
+                <h1 class="brand-name">Kirk D. Brown</h1>
+                <span class="tagline">Senior Full-Stack Engineer</span>
+            </span>
+        </a>
+        <div class="header-actions">
+            <a href="/blog/" aria-label="Blog"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></a>
+            <a href="mailto:kdborg@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
+            <a href="https://github.com/kdborg" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+            <a href="https://www.linkedin.com/in/kirk-d-brown/" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="#0A66C2" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+            <button type="button" class="theme-toggle" aria-label="Toggle dark mode">
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            </button>
+        </div>
+    </header>
+    <main>
+<h1 style="font-size:1.4em">CodeCup 2027 Tumbleweed test competitions: finalists ranked by points from white wins</h1>
+<section id="test1" style="overflow-x:auto">
+<style>
+.ww-table{border-collapse:collapse;font:14px/1.35 Arial,Helvetica,sans-serif;margin:0 0 1em}
+.ww-table caption{text-align:left;font-weight:bold;padding:0 0 .4em}
+.ww-table th,.ww-table td{padding:.25em .5em;border-bottom:1px solid #d9d9d9;white-space:nowrap}
+.ww-table th{white-space:normal;max-width:6em}
+.ww-table th{background:#1f3864;color:#fff;text-align:center;vertical-align:bottom}
+.ww-table td.n{text-align:right;font-variant-numeric:tabular-nums}
+.ww-table td.c{text-align:center}
+.ww-table tr.ours td{background:#e2efda;font-weight:bold}
+.ww-table th.sep,.ww-table td.sep{border-left:2px solid #1f3864}
+.ww-note{font:13px/1.4 Arial,Helvetica,sans-serif;color:#555;max-width:60em}
+</style>
+
+<table class="ww-table">
+<caption>Test competition 1 (Sat Sep 05 2026): finalists ranked by points from white wins</caption>
+<thead><tr>
+<th>#</th>
+<th>Program</th>
+<th>White-win points</th>
+<th>White wins</th>
+<th>Points per white win</th>
+<th>White losses</th>
+<th class="sep">Overall rank</th>
+<th>Overall points</th>
+<th>Points per game</th>
+<th>Red wins</th>
+</tr></thead><tbody>
+<tr><td class="c">1</td><td>CrazyZero</td><td class="n">2,947</td><td class="c">11</td><td class="n">267.9</td><td class="c">4</td><td class="c sep">1</td><td class="n">7,529</td><td class="n">251.0</td><td class="c">15</td></tr>
+<tr><td class="c">2</td><td>HighNoon</td><td class="n">2,891</td><td class="c">11</td><td class="n">262.8</td><td class="c">4</td><td class="c sep">2</td><td class="n">7,446</td><td class="n">248.2</td><td class="c">15</td></tr>
+<tr><td class="c">3</td><td>MrTwit</td><td class="n">2,869</td><td class="c">11</td><td class="n">260.8</td><td class="c">4</td><td class="c sep">3</td><td class="n">7,406</td><td class="n">246.9</td><td class="c">15</td></tr>
+<tr><td class="c">4</td><td>DustDevil</td><td class="n">2,615</td><td class="c">10</td><td class="n">261.5</td><td class="c">5</td><td class="c sep">4</td><td class="n">7,155</td><td class="n">238.5</td><td class="c">14</td></tr>
+<tr><td class="c">5</td><td>Claude_Rapunzel</td><td class="n">2,583</td><td class="c">10</td><td class="n">258.3</td><td class="c">5</td><td class="c sep">5</td><td class="n">7,047</td><td class="n">234.9</td><td class="c">15</td></tr>
+<tr class="ours"><td class="c">6</td><td>SightLines</td><td class="n">2,348</td><td class="c">9</td><td class="n">260.9</td><td class="c">6</td><td class="c sep">6</td><td class="n">6,741</td><td class="n">224.7</td><td class="c">12</td></tr>
+<tr><td class="c">7</td><td>Kaatua</td><td class="n">2,048</td><td class="c">8</td><td class="n">256.0</td><td class="c">7</td><td class="c sep">8</td><td class="n">6,031</td><td class="n">201.0</td><td class="c">8</td></tr>
+<tr><td class="c">8</td><td>tumblebee</td><td class="n">1,840</td><td class="c">7</td><td class="n">262.9</td><td class="c">8</td><td class="c sep">7</td><td class="n">6,129</td><td class="n">204.3</td><td class="c">9</td></tr>
+<tr><td class="c">9</td><td>TBD</td><td class="n">1,550</td><td class="c">6</td><td class="n">258.3</td><td class="c">9</td><td class="c sep">10</td><td class="n">5,656</td><td class="n">188.5</td><td class="c">7</td></tr>
+<tr><td class="c">10</td><td>V_1_24_0</td><td class="n">1,316</td><td class="c">5</td><td class="n">263.2</td><td class="c">10</td><td class="c sep">9</td><td class="n">5,787</td><td class="n">192.9</td><td class="c">8</td></tr>
+<tr><td class="c">11</td><td>FumbleWeed</td><td class="n">1,283</td><td class="c">5</td><td class="n">256.6</td><td class="c">10</td><td class="c sep">11</td><td class="n">5,361</td><td class="n">178.7</td><td class="c">7</td></tr>
+<tr><td class="c">12</td><td>McWeed_1_0</td><td class="n">1,054</td><td class="c">4</td><td class="n">263.5</td><td class="c">11</td><td class="c sep">12</td><td class="n">4,960</td><td class="n">165.3</td><td class="c">4</td></tr>
+<tr><td class="c">13</td><td>hexago_v4_4</td><td class="n">543</td><td class="c">2</td><td class="n">271.5</td><td class="c">13</td><td class="c sep">13</td><td class="n">4,692</td><td class="n">156.4</td><td class="c">4</td></tr>
+<tr><td class="c">14</td><td>vlastuin6 (unofficial)</td><td class="n">283</td><td class="c">1</td><td class="n">283.0</td><td class="c">14</td><td class="c sep">14</td><td class="n">4,582</td><td class="n">152.7</td><td class="c">4</td></tr>
+<tr><td class="c">15</td><td>Otter_v0_1f</td><td class="n">248</td><td class="c">1</td><td class="n">248.0</td><td class="c">14</td><td class="c sep">16</td><td class="n">3,519</td><td class="n">117.3</td><td class="c">1</td></tr>
+<tr><td class="c">16</td><td>v2b</td><td class="n">0</td><td class="c">0</td><td class="n">0.0</td><td class="c">15</td><td class="c sep">15</td><td class="n">3,799</td><td class="n">126.6</td><td class="c">1</td></tr>
+</tbody></table>
+<p class="ww-note">16 finalists, 15 final rounds, 30 games per program (15 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV. Source: codecup.nl, competition 364 results CSV.</p>
+</section>
+<section id="test2" style="overflow-x:auto">
+
+<table class="ww-table">
+<caption>Test competition 2 (Sat Sep 19 2026): finalists ranked by points from white wins</caption>
+<thead><tr>
+<th>#</th>
+<th>Program</th>
+<th>White-win points</th>
+<th>White wins</th>
+<th>Points per white win</th>
+<th>White losses</th>
+<th class="sep">Overall rank</th>
+<th>Overall points</th>
+<th>Points per game</th>
+<th>Red wins</th>
+</tr></thead><tbody>
+<tr><td class="c">1</td><td>MrTwit</td><td class="n">4,770</td><td class="c">18</td><td class="n">265.0</td><td class="c">3</td><td class="c sep">1</td><td class="n">10,849</td><td class="n">258.3</td><td class="c">21</td></tr>
+<tr><td class="c">2</td><td>DustDevil</td><td class="n">4,468</td><td class="c">17</td><td class="n">262.8</td><td class="c">4</td><td class="c sep">4</td><td class="n">10,592</td><td class="n">252.2</td><td class="c">20</td></tr>
+<tr class="ours"><td class="c">3</td><td>Sightlines12</td><td class="n">4,291</td><td class="c">16</td><td class="n">268.2</td><td class="c">5</td><td class="c sep">3</td><td class="n">10,613</td><td class="n">252.7</td><td class="c">21</td></tr>
+<tr><td class="c">4</td><td>CrazyZero</td><td class="n">4,266</td><td class="c">16</td><td class="n">266.6</td><td class="c">5</td><td class="c sep">6</td><td class="n">10,414</td><td class="n">248.0</td><td class="c">19</td></tr>
+<tr><td class="c">5</td><td>Claude_Rapunzel</td><td class="n">4,251</td><td class="c">16</td><td class="n">265.7</td><td class="c">5</td><td class="c sep">5</td><td class="n">10,468</td><td class="n">249.2</td><td class="c">20</td></tr>
+<tr><td class="c">6</td><td>HighNoon</td><td class="n">4,250</td><td class="c">16</td><td class="n">265.6</td><td class="c">5</td><td class="c sep">2</td><td class="n">10,677</td><td class="n">254.2</td><td class="c">21</td></tr>
+<tr><td class="c">7</td><td>tumblebee</td><td class="n">3,662</td><td class="c">14</td><td class="n">261.6</td><td class="c">7</td><td class="c sep">7</td><td class="n">9,446</td><td class="n">224.9</td><td class="c">16</td></tr>
+<tr><td class="c">8</td><td>V_1_36_0</td><td class="n">3,584</td><td class="c">14</td><td class="n">256.0</td><td class="c">7</td><td class="c sep">8</td><td class="n">9,281</td><td class="n">221.0</td><td class="c">15</td></tr>
+<tr><td class="c">9</td><td>Kaatua</td><td class="n">3,061</td><td class="c">12</td><td class="n">255.1</td><td class="c">9</td><td class="c sep">9</td><td class="n">8,575</td><td class="n">204.2</td><td class="c">12</td></tr>
+<tr><td class="c">10</td><td>TBD</td><td class="n">2,837</td><td class="c">11</td><td class="n">257.9</td><td class="c">10</td><td class="c sep">10</td><td class="n">8,476</td><td class="n">201.8</td><td class="c">12</td></tr>
+<tr><td class="c">11</td><td>FumbleWeed</td><td class="n">2,523</td><td class="c">10</td><td class="n">252.3</td><td class="c">11</td><td class="c sep">11</td><td class="n">8,147</td><td class="n">194.0</td><td class="c">13</td></tr>
+<tr><td class="c">12</td><td>vlastuin6 (unofficial)</td><td class="n">1,802</td><td class="c">7</td><td class="n">257.4</td><td class="c">14</td><td class="c sep">12</td><td class="n">7,548</td><td class="n">179.7</td><td class="c">10</td></tr>
+<tr><td class="c">13</td><td>OSMAlfaberra</td><td class="n">1,530</td><td class="c">6</td><td class="n">255.0</td><td class="c">15</td><td class="c sep">13</td><td class="n">7,341</td><td class="n">174.8</td><td class="c">8</td></tr>
+<tr><td class="c">14</td><td>hexago_v4_4</td><td class="n">1,312</td><td class="c">5</td><td class="n">262.4</td><td class="c">16</td><td class="c sep">14</td><td class="n">7,240</td><td class="n">172.4</td><td class="c">9</td></tr>
+<tr><td class="c">15</td><td>McWeed_1_0</td><td class="n">1,280</td><td class="c">5</td><td class="n">256.0</td><td class="c">16</td><td class="c sep">15</td><td class="n">7,152</td><td class="n">170.3</td><td class="c">9</td></tr>
+<tr><td class="c">16</td><td>ManifestHextiny</td><td class="n">1,038</td><td class="c">4</td><td class="n">259.5</td><td class="c">17</td><td class="c sep">16</td><td class="n">6,937</td><td class="n">165.2</td><td class="c">8</td></tr>
+<tr><td class="c">17</td><td>Flux</td><td class="n">1,016</td><td class="c">4</td><td class="n">254.0</td><td class="c">17</td><td class="c sep">20</td><td class="n">6,141</td><td class="n">146.2</td><td class="c">4</td></tr>
+<tr><td class="c">18</td><td>Otter_v0_2_3</td><td class="n">1,013</td><td class="c">4</td><td class="n">253.2</td><td class="c">17</td><td class="c sep">17</td><td class="n">6,642</td><td class="n">158.1</td><td class="c">4</td></tr>
+<tr><td class="c">19</td><td>WeedWhacker (unofficial)</td><td class="n">1,010</td><td class="c">4</td><td class="n">252.5</td><td class="c">17</td><td class="c sep">19</td><td class="n">6,316</td><td class="n">150.4</td><td class="c">5</td></tr>
+<tr><td class="c">20</td><td>rollweed</td><td class="n">519</td><td class="c">2</td><td class="n">259.5</td><td class="c">19</td><td class="c sep">18</td><td class="n">6,422</td><td class="n">152.9</td><td class="c">6</td></tr>
+<tr><td class="c">21</td><td>v2b</td><td class="n">247</td><td class="c">1</td><td class="n">247.0</td><td class="c">20</td><td class="c sep">21</td><td class="n">5,764</td><td class="n">137.2</td><td class="c">4</td></tr>
+<tr><td class="c">22</td><td>20260918_tw</td><td class="n">0</td><td class="c">0</td><td class="n">0.0</td><td class="c">21</td><td class="c sep">22</td><td class="n">5,601</td><td class="n">133.4</td><td class="c">3</td></tr>
+</tbody></table>
+<p class="ww-note">22 finalists, 21 final rounds, 42 games per program (21 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV. Source: codecup.nl, competition 363 results CSV.</p>
+</section>
+<section id="test3" style="overflow-x:auto">
+
+<table class="ww-table">
+<caption>Test competition 3 (Sat Oct 03 2026): finalists ranked by points from white wins</caption>
+<thead><tr>
+<th>#</th>
+<th>Program</th>
+<th>White-win points</th>
+<th>White wins</th>
+<th>Points per white win</th>
+<th>White losses</th>
+<th class="sep">Overall rank</th>
+<th>Overall points</th>
+<th>Points per game</th>
+<th>Red wins</th>
+</tr></thead><tbody>
+<tr><td class="c">1</td><td>HighNoon</td><td class="n">6,428</td><td class="c">24</td><td class="n">267.8</td><td class="c">5</td><td class="c sep">1</td><td class="n">15,026</td><td class="n">259.1</td><td class="c">29</td></tr>
+<tr><td class="c">2</td><td>DustDevil</td><td class="n">6,401</td><td class="c">24</td><td class="n">266.7</td><td class="c">5</td><td class="c sep">2</td><td class="n">14,928</td><td class="n">257.4</td><td class="c">29</td></tr>
+<tr class="ours"><td class="c">3</td><td>Sightlines16</td><td class="n">5,876</td><td class="c">22</td><td class="n">267.1</td><td class="c">7</td><td class="c sep">3</td><td class="n">14,663</td><td class="n">252.8</td><td class="c">29</td></tr>
+<tr><td class="c">4</td><td>Claude_Rapunzel</td><td class="n">5,645</td><td class="c">21</td><td class="n">268.8</td><td class="c">8</td><td class="c sep">5</td><td class="n">14,606</td><td class="n">251.8</td><td class="c">29</td></tr>
+<tr><td class="c">5</td><td>rubble</td><td class="n">5,640</td><td class="c">22</td><td class="n">256.4</td><td class="c">7</td><td class="c sep">8</td><td class="n">13,659</td><td class="n">235.5</td><td class="c">26</td></tr>
+<tr><td class="c">6</td><td>CrazyZero</td><td class="n">5,637</td><td class="c">21</td><td class="n">268.4</td><td class="c">8</td><td class="c sep">6</td><td class="n">14,451</td><td class="n">249.2</td><td class="c">27</td></tr>
+<tr><td class="c">7</td><td>MrTwit</td><td class="n">5,437</td><td class="c">20</td><td class="n">271.9</td><td class="c">9</td><td class="c sep">4</td><td class="n">14,620</td><td class="n">252.1</td><td class="c">29</td></tr>
+<tr><td class="c">8</td><td>tumblebee</td><td class="n">5,318</td><td class="c">20</td><td class="n">265.9</td><td class="c">9</td><td class="c sep">7</td><td class="n">13,996</td><td class="n">241.3</td><td class="c">26</td></tr>
+<tr><td class="c">9</td><td>kunio</td><td class="n">4,962</td><td class="c">20</td><td class="n">248.1</td><td class="c">9</td><td class="c sep">9</td><td class="n">13,027</td><td class="n">224.6</td><td class="c">28</td></tr>
+<tr><td class="c">10</td><td>V_1_36_0</td><td class="n">4,611</td><td class="c">18</td><td class="n">256.2</td><td class="c">11</td><td class="c sep">10</td><td class="n">12,812</td><td class="n">220.9</td><td class="c">22</td></tr>
+<tr><td class="c">11</td><td>Kaatua</td><td class="n">4,147</td><td class="c">16</td><td class="n">259.2</td><td class="c">13</td><td class="c sep">11</td><td class="n">12,247</td><td class="n">211.2</td><td class="c">19</td></tr>
+<tr><td class="c">12</td><td>FumbleWeed</td><td class="n">4,022</td><td class="c">16</td><td class="n">251.4</td><td class="c">13</td><td class="c sep">13</td><td class="n">11,715</td><td class="n">202.0</td><td class="c">19</td></tr>
+<tr><td class="c">13</td><td>TBD</td><td class="n">3,345</td><td class="c">13</td><td class="n">257.3</td><td class="c">16</td><td class="c sep">12</td><td class="n">11,739</td><td class="n">202.4</td><td class="c">19</td></tr>
+<tr><td class="c">14</td><td>Otter_v0_3</td><td class="n">2,911</td><td class="c">11</td><td class="n">264.6</td><td class="c">18</td><td class="c sep">14</td><td class="n">11,198</td><td class="n">193.1</td><td class="c">16</td></tr>
+<tr><td class="c">15</td><td>TumbleMonkey</td><td class="n">2,887</td><td class="c">11</td><td class="n">262.5</td><td class="c">18</td><td class="c sep">17</td><td class="n">11,064</td><td class="n">190.8</td><td class="c">14</td></tr>
+<tr><td class="c">16</td><td>Flux</td><td class="n">2,613</td><td class="c">10</td><td class="n">261.3</td><td class="c">19</td><td class="c sep">15</td><td class="n">11,152</td><td class="n">192.3</td><td class="c">16</td></tr>
+<tr><td class="c">17</td><td>vlastuin6 (unofficial)</td><td class="n">2,570</td><td class="c">10</td><td class="n">257.0</td><td class="c">19</td><td class="c sep">19</td><td class="n">10,068</td><td class="n">173.6</td><td class="c">9</td></tr>
+<tr><td class="c">18</td><td>Hex_tower_test</td><td class="n">2,365</td><td class="c">9</td><td class="n">262.8</td><td class="c">20</td><td class="c sep">21</td><td class="n">9,946</td><td class="n">171.5</td><td class="c">10</td></tr>
+<tr><td class="c">19</td><td>rollweed</td><td class="n">2,305</td><td class="c">9</td><td class="n">256.1</td><td class="c">20</td><td class="c sep">16</td><td class="n">11,130</td><td class="n">191.9</td><td class="c">18</td></tr>
+<tr><td class="c">20</td><td>McWeed_1_0</td><td class="n">2,099</td><td class="c">8</td><td class="n">262.4</td><td class="c">21</td><td class="c sep">22</td><td class="n">9,943</td><td class="n">171.4</td><td class="c">10</td></tr>
+<tr><td class="c">21</td><td>hexago_v6_5</td><td class="n">1,838</td><td class="c">7</td><td class="n">262.6</td><td class="c">22</td><td class="c sep">18</td><td class="n">10,179</td><td class="n">175.5</td><td class="c">13</td></tr>
+<tr><td class="c">22</td><td>OSMAlfaberra</td><td class="n">1,818</td><td class="c">7</td><td class="n">259.7</td><td class="c">22</td><td class="c sep">23</td><td class="n">9,915</td><td class="n">170.9</td><td class="c">10</td></tr>
+<tr><td class="c">23</td><td>WeedWhacker (unofficial)</td><td class="n">1,813</td><td class="c">7</td><td class="n">259.0</td><td class="c">22</td><td class="c sep">25</td><td class="n">9,289</td><td class="n">160.2</td><td class="c">9</td></tr>
+<tr><td class="c">24</td><td>Lightning_McQue...</td><td class="n">1,581</td><td class="c">6</td><td class="n">263.5</td><td class="c">23</td><td class="c sep">20</td><td class="n">10,042</td><td class="n">173.1</td><td class="c">13</td></tr>
+<tr><td class="c">25</td><td>turboseed</td><td class="n">1,570</td><td class="c">6</td><td class="n">261.7</td><td class="c">23</td><td class="c sep">26</td><td class="n">9,277</td><td class="n">159.9</td><td class="c">9</td></tr>
+<tr><td class="c">26</td><td>20260918_tw</td><td class="n">1,563</td><td class="c">6</td><td class="n">260.5</td><td class="c">23</td><td class="c sep">27</td><td class="n">8,672</td><td class="n">149.5</td><td class="c">5</td></tr>
+<tr><td class="c">27</td><td>ManifestHextiny</td><td class="n">1,530</td><td class="c">6</td><td class="n">255.0</td><td class="c">23</td><td class="c sep">24</td><td class="n">9,532</td><td class="n">164.3</td><td class="c">10</td></tr>
+<tr><td class="c">28</td><td>v3g</td><td class="n">529</td><td class="c">2</td><td class="n">264.5</td><td class="c">27</td><td class="c sep">28</td><td class="n">7,654</td><td class="n">132.0</td><td class="c">3</td></tr>
+<tr><td class="c">29</td><td>BasicBot</td><td class="n">252</td><td class="c">1</td><td class="n">252.0</td><td class="c">28</td><td class="c sep">29</td><td class="n">6,884</td><td class="n">118.7</td><td class="c">1</td></tr>
+<tr><td class="c">30</td><td>lostumbler3</td><td class="n">0</td><td class="c">0</td><td class="n">0.0</td><td class="c">29</td><td class="c sep">30</td><td class="n">6,618</td><td class="n">114.1</td><td class="c">0</td></tr>
+</tbody></table>
+<p class="ww-note">30 finalists, 29 final rounds, 58 games per program (29 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV. Source: codecup.nl, competition 362 results CSV.</p>
+</section>
+<section id="test4" style="overflow-x:auto">
+
+<table class="ww-table">
+<caption>Test competition 4 (Sat Oct 17 2026): finalists ranked by points from white wins</caption>
+<thead><tr>
+<th>#</th>
+<th>Program</th>
+<th>White-win points</th>
+<th>White wins</th>
+<th>Points per white win</th>
+<th>White losses</th>
+<th class="sep">Overall rank</th>
+<th>Overall points</th>
+<th>Points per game</th>
+<th>Red wins</th>
+</tr></thead><tbody>
+<tr class="ours"><td class="c">1</td><td>Sightlines19</td><td class="n">8,833</td><td class="c">33</td><td class="n">267.7</td><td class="c">8</td><td class="c sep">1</td><td class="n">21,120</td><td class="n">257.6</td><td class="c">41</td></tr>
+<tr><td class="c">2</td><td>WildCard</td><td class="n">8,549</td><td class="c">32</td><td class="n">267.2</td><td class="c">9</td><td class="c sep">3</td><td class="n">20,945</td><td class="n">255.4</td><td class="c">41</td></tr>
+<tr><td class="c">3</td><td>HighNoon</td><td class="n">8,354</td><td class="c">31</td><td class="n">269.5</td><td class="c">10</td><td class="c sep">2</td><td class="n">21,012</td><td class="n">256.2</td><td class="c">41</td></tr>
+<tr><td class="c">4</td><td>Claude_Rapunzel</td><td class="n">8,016</td><td class="c">30</td><td class="n">267.2</td><td class="c">11</td><td class="c sep">4</td><td class="n">20,521</td><td class="n">250.3</td><td class="c">41</td></tr>
+<tr><td class="c">5</td><td>shot1</td><td class="n">7,917</td><td class="c">30</td><td class="n">263.9</td><td class="c">11</td><td class="c sep">10</td><td class="n">19,639</td><td class="n">239.5</td><td class="c">41</td></tr>
+<tr><td class="c">6</td><td>MrTwit</td><td class="n">7,712</td><td class="c">29</td><td class="n">265.9</td><td class="c">12</td><td class="c sep">6</td><td class="n">20,368</td><td class="n">248.4</td><td class="c">41</td></tr>
+<tr><td class="c">7</td><td>kunio</td><td class="n">7,605</td><td class="c">29</td><td class="n">262.2</td><td class="c">12</td><td class="c sep">9</td><td class="n">19,751</td><td class="n">240.9</td><td class="c">39</td></tr>
+<tr><td class="c">8</td><td>Fabulous</td><td class="n">7,604</td><td class="c">28</td><td class="n">271.6</td><td class="c">13</td><td class="c sep">5</td><td class="n">20,402</td><td class="n">248.8</td><td class="c">40</td></tr>
+<tr><td class="c">9</td><td>FumbleWeed</td><td class="n">7,588</td><td class="c">29</td><td class="n">261.7</td><td class="c">12</td><td class="c sep">11</td><td class="n">19,581</td><td class="n">238.8</td><td class="c">38</td></tr>
+<tr><td class="c">10</td><td>CrazyZero</td><td class="n">7,517</td><td class="c">28</td><td class="n">268.5</td><td class="c">13</td><td class="c sep">7</td><td class="n">20,294</td><td class="n">247.5</td><td class="c">40</td></tr>
+<tr><td class="c">11</td><td>tumblebee</td><td class="n">7,444</td><td class="c">28</td><td class="n">265.9</td><td class="c">13</td><td class="c sep">12</td><td class="n">19,444</td><td class="n">237.1</td><td class="c">34</td></tr>
+<tr><td class="c">12</td><td>rubble</td><td class="n">7,212</td><td class="c">27</td><td class="n">267.1</td><td class="c">14</td><td class="c sep">8</td><td class="n">20,231</td><td class="n">246.7</td><td class="c">41</td></tr>
+<tr><td class="c">13</td><td>ManifestHextiny</td><td class="n">6,906</td><td class="c">26</td><td class="n">265.6</td><td class="c">15</td><td class="c sep">13</td><td class="n">18,697</td><td class="n">228.0</td><td class="c">32</td></tr>
+<tr><td class="c">14</td><td>V_1_36_0</td><td class="n">6,705</td><td class="c">26</td><td class="n">257.9</td><td class="c">15</td><td class="c sep">14</td><td class="n">18,511</td><td class="n">225.7</td><td class="c">34</td></tr>
+<tr><td class="c">15</td><td>Tenuki</td><td class="n">6,064</td><td class="c">23</td><td class="n">263.7</td><td class="c">18</td><td class="c sep">15</td><td class="n">17,623</td><td class="n">214.9</td><td class="c">26</td></tr>
+<tr><td class="c">16</td><td>McWeed_2_0</td><td class="n">5,800</td><td class="c">22</td><td class="n">263.6</td><td class="c">19</td><td class="c sep">16</td><td class="n">17,491</td><td class="n">213.3</td><td class="c">27</td></tr>
+<tr><td class="c">17</td><td>Flux</td><td class="n">5,546</td><td class="c">21</td><td class="n">264.1</td><td class="c">20</td><td class="c sep">19</td><td class="n">16,709</td><td class="n">203.8</td><td class="c">23</td></tr>
+<tr><td class="c">18</td><td>Kaatua</td><td class="n">5,477</td><td class="c">21</td><td class="n">260.8</td><td class="c">20</td><td class="c sep">18</td><td class="n">16,873</td><td class="n">205.8</td><td class="c">26</td></tr>
+<tr><td class="c">19</td><td>Abyssal</td><td class="n">5,367</td><td class="c">20</td><td class="n">268.4</td><td class="c">21</td><td class="c sep">17</td><td class="n">17,128</td><td class="n">208.9</td><td class="c">25</td></tr>
+<tr><td class="c">20</td><td>q</td><td class="n">5,249</td><td class="c">20</td><td class="n">262.4</td><td class="c">21</td><td class="c sep">20</td><td class="n">16,431</td><td class="n">200.4</td><td class="c">22</td></tr>
+<tr><td class="c">21</td><td>TBD</td><td class="n">4,492</td><td class="c">17</td><td class="n">264.2</td><td class="c">24</td><td class="c sep">21</td><td class="n">16,117</td><td class="n">196.5</td><td class="c">25</td></tr>
+<tr><td class="c">22</td><td>Otter_v0_4</td><td class="n">4,462</td><td class="c">17</td><td class="n">262.5</td><td class="c">24</td><td class="c sep">22</td><td class="n">16,113</td><td class="n">196.5</td><td class="c">23</td></tr>
+<tr><td class="c">23</td><td>TumbleMonkey</td><td class="n">4,241</td><td class="c">16</td><td class="n">265.1</td><td class="c">25</td><td class="c sep">23</td><td class="n">15,622</td><td class="n">190.5</td><td class="c">19</td></tr>
+<tr><td class="c">24</td><td>rollweed</td><td class="n">3,923</td><td class="c">15</td><td class="n">261.5</td><td class="c">26</td><td class="c sep">24</td><td class="n">15,225</td><td class="n">185.7</td><td class="c">17</td></tr>
+<tr><td class="c">25</td><td>Hex2</td><td class="n">3,739</td><td class="c">14</td><td class="n">267.1</td><td class="c">27</td><td class="c sep">25</td><td class="n">15,125</td><td class="n">184.5</td><td class="c">19</td></tr>
+<tr><td class="c">26</td><td>hexago_v6_5</td><td class="n">3,705</td><td class="c">14</td><td class="n">264.6</td><td class="c">27</td><td class="c sep">26</td><td class="n">14,771</td><td class="n">180.1</td><td class="c">17</td></tr>
+<tr><td class="c">27</td><td>turboseed</td><td class="n">2,407</td><td class="c">9</td><td class="n">267.4</td><td class="c">32</td><td class="c sep">28</td><td class="n">13,192</td><td class="n">160.9</td><td class="c">13</td></tr>
+<tr><td class="c">28</td><td>WeedWhacker (unofficial)</td><td class="n">2,386</td><td class="c">9</td><td class="n">265.1</td><td class="c">32</td><td class="c sep">29</td><td class="n">13,168</td><td class="n">160.6</td><td class="c">13</td></tr>
+<tr><td class="c">29</td><td>vlastuin6 (unofficial)</td><td class="n">2,357</td><td class="c">9</td><td class="n">261.9</td><td class="c">32</td><td class="c sep">27</td><td class="n">14,007</td><td class="n">170.8</td><td class="c">17</td></tr>
+<tr><td class="c">30</td><td>Ole</td><td class="n">2,139</td><td class="c">8</td><td class="n">267.4</td><td class="c">33</td><td class="c sep">38</td><td class="n">9,889</td><td class="n">120.6</td><td class="c">14</td></tr>
+<tr><td class="c">31</td><td>OSMNextup</td><td class="n">2,108</td><td class="c">8</td><td class="n">263.5</td><td class="c">33</td><td class="c sep">30</td><td class="n">12,901</td><td class="n">157.3</td><td class="c">10</td></tr>
+<tr><td class="c">32</td><td>20260918_tw</td><td class="n">1,895</td><td class="c">7</td><td class="n">270.7</td><td class="c">34</td><td class="c sep">32</td><td class="n">12,403</td><td class="n">151.3</td><td class="c">10</td></tr>
+<tr><td class="c">33</td><td>campagnolo</td><td class="n">1,857</td><td class="c">7</td><td class="n">265.3</td><td class="c">34</td><td class="c sep">31</td><td class="n">12,823</td><td class="n">156.4</td><td class="c">10</td></tr>
+<tr><td class="c">34</td><td>v3g</td><td class="n">1,590</td><td class="c">6</td><td class="n">265.0</td><td class="c">35</td><td class="c sep">33</td><td class="n">11,403</td><td class="n">139.1</td><td class="c">6</td></tr>
+<tr><td class="c">35</td><td>Tumbleweed</td><td class="n">1,316</td><td class="c">5</td><td class="n">263.2</td><td class="c">36</td><td class="c sep">35</td><td class="n">10,787</td><td class="n">131.5</td><td class="c">4</td></tr>
+<tr><td class="c">36</td><td>ltwd</td><td class="n">1,000</td><td class="c">4</td><td class="n">250.0</td><td class="c">37</td><td class="c sep">36</td><td class="n">9,972</td><td class="n">121.6</td><td class="c">4</td></tr>
+<tr><td class="c">37</td><td>Tumbleweed</td><td class="n">789</td><td class="c">3</td><td class="n">263.0</td><td class="c">38</td><td class="c sep">37</td><td class="n">9,927</td><td class="n">121.1</td><td class="c">2</td></tr>
+<tr><td class="c">38</td><td>lostumbler4</td><td class="n">756</td><td class="c">3</td><td class="n">252.0</td><td class="c">38</td><td class="c sep">34</td><td class="n">10,940</td><td class="n">133.4</td><td class="c">5</td></tr>
+<tr><td class="c">39</td><td>player_10_12</td><td class="n">247</td><td class="c">1</td><td class="n">247.0</td><td class="c">40</td><td class="c sep">39</td><td class="n">9,793</td><td class="n">119.4</td><td class="c">3</td></tr>
+<tr><td class="c">40</td><td> </td><td class="n">0</td><td class="c">0</td><td class="n">0.0</td><td class="c">41</td><td class="c sep">40</td><td class="n">9,750</td><td class="n">118.9</td><td class="c">0</td></tr>
+</tbody></table>
+<p class="ww-note">40 finalists, 41 final rounds, 82 games per program (41 as white). “Points from white wins” = the points scored in the final-round games won as white; “Overall” = the official ranking from the same CSV. Left out: JelteDestroyer6... / Lightning_McQue... (164 games under one user name, so the entries cannot be separated). Source: codecup.nl, competition 361 results CSV.</p>
+</section>
+    </main>
+</body>
+</html>
