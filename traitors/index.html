@@ -91,10 +91,20 @@ nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--
 .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 
 /* players */
-.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
-.pitem{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;background:var(--bg)}
-.pitem input{flex:1;border:none;background:transparent;padding:2px}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:8px}
+.pitem{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:start;border:1px solid var(--line);border-radius:var(--r);padding:8px;background:var(--bg)}
+.pitem .pfields{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pitem input[type=text]{width:100%;border:1px solid transparent;background:transparent;padding:2px 4px;border-radius:4px}
+.pitem input[type=text]:hover,.pitem input[type=text]:focus{border-color:var(--line);background:var(--surface)}
+.pitem input.pname{font-weight:600}
+.pitem input.pjob,.pitem input.pgrp{font-size:.86rem;color:var(--muted)}
 .pitem .x{border:none;background:transparent;color:var(--muted);font-size:1.1rem;line-height:1}
+.photo-btn{position:relative;width:64px;height:64px;border-radius:50%;overflow:hidden;border:1px dashed var(--line);background:var(--sunk);padding:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.7rem;line-height:1.1;text-align:center}
+.photo-btn img{width:100%;height:100%;object-fit:cover}
+.photo-btn.has{border-style:solid}
+.photo-rm{border:none;background:transparent;color:var(--muted);font-size:.75rem;padding:2px 0;text-decoration:underline;cursor:pointer;display:block;margin:2px auto 0}
+.av{width:28px;height:28px;border-radius:50%;object-fit:cover;flex:none;vertical-align:middle;background:var(--sunk);display:inline-flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:600;color:var(--muted);margin-right:8px}
+.who{display:inline-flex;align-items:center;min-width:0} .who .jobl{display:block;font-size:.78rem;color:var(--muted);font-weight:400}
 
 /* timeline */
 .eplist,.evlist{display:flex;flex-direction:column;gap:6px}
@@ -117,8 +127,19 @@ nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 11px;font-size:.88rem}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+/* player pickers: headshots the same size as on the Players tab */
+.mini{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;background:var(--sunk);display:inline-flex;align-items:center;justify-content:center;font-size:1rem;font-weight:600;color:var(--muted);margin-right:10px;vertical-align:middle;pointer-events:none}
+.chips .chip:has(.mini),.seats .seat:has(.mini){display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;width:104px;padding:8px 4px 6px;border-radius:10px;text-align:center;line-height:1.2;font-size:.8rem;white-space:normal;vertical-align:top}
+.chips .chip .mini,.seats .seat .mini{margin:0}
+.chip[aria-pressed="true"] .mini{outline:3px solid var(--bg);outline-offset:-3px}
+.seats .seat:has(.mini){position:relative;padding-top:8px}
+.seats .seat b{position:absolute;top:4px;left:6px;background:var(--surface);border-radius:999px;padding:0 6px;font-size:.72rem}
+.seats .seat button{position:absolute;top:2px;right:2px}
+.bcell .who{display:flex;align-items:center;min-width:0}
+.bcell{grid-template-columns:minmax(0,1fr) 8.5em}
+table.votes td:first-child .who{display:flex;align-items:center}
 .chip.used{opacity:.4}
-.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:8px}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:8px}
 .bcell{display:grid;grid-template-columns:minmax(0,1fr) 8.5em;align-items:center;gap:8px;border:1px solid var(--line);border-radius:var(--r);padding:6px 6px 6px 10px;background:var(--bg);font-size:.92rem}
 .bcell span{overflow-wrap:anywhere}
 .bcell select{width:100%}
@@ -287,6 +308,9 @@ let editing=null;      // {gameId, id (null for a new event), after, kind, episo
 let exportInfo=null, chartMode='score', reportSet=null, highlight=null, expanded=null, busy=false, showT=lsGet('rl.showT')!=='0';
 const game = ()=> full && full.id===currentId ? full : null;
 const pname = (g,id)=> (g.players.find(p=>p.id===id)||{}).name || '?';
+const jobOf = (g,id)=> (g.players.find(p=>p.id===id)||{}).job || '';
+function initials(n){ const w=String(n||'?').replace(/"[^"]*"/g,' ').split(/\s+/).filter(Boolean); return ((w[0]||'?')[0]+(w.length>1?w[w.length-1][0]:'')).toUpperCase(); }
+function avatar(g,id){ const p=g.players.find(x=>x.id===id)||{}; return p.photo? `<img class="av" src="${esc(p.photo)}" alt="">` : `<span class="av" aria-hidden="true">${esc(initials(p.name))}</span>`; }
 
 /* ---------------- read-only website mode ----------------
    With no server behind it (e.g. on a static web host), this page loads ledger.sqlite from its own folder with
@@ -390,7 +414,14 @@ function renderPlayers(g){
       <div class="row"><textarea id="addNames" placeholder="Alan, Cat, Jonathan…" style="flex:1;min-height:44px"></textarea><button class="btn primary" data-act="add-players">Add</button></div>
     </div>
     <div class="section"><h3>Cast</h3>
-      ${g.players.length? `<div class="plist">${g.players.map(p=>`<div class="pitem"><input type="text" id="pn-${esc(p.id)}" data-pid="${esc(p.id)}" value="${esc(p.name)}" aria-label="Player name"><input type="text" id="pg-${esc(p.id)}" data-pgroup="${esc(p.id)}" value="${esc(p.group||'')}" placeholder="group" aria-label="Group for ${esc(p.name)}" style="max-width:7.5em;color:var(--muted)">${used.has(p.id)?'':`<button class="x" data-act="del-player" data-pid="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button>`}</div>`).join('')}</div><p class="muted small">Players who already appear in the timeline can be renamed but not removed. The optional group (comedian, actor, athlete…) lets the trio rules cross off groups of Traitors who'd all be from the same group.</p>` : '<div class="empty">No players yet. Add the cast above.</div>'}
+      ${g.players.length? `<div class="plist">${g.players.map(p=>`<div class="pitem">
+          <div><button class="photo-btn ${p.photo?'has':''}" data-act="photo-pick" data-pid="${esc(p.id)}" aria-label="${p.photo?'Change':'Add'} a headshot for ${esc(p.name)}">${p.photo?`<img src="${esc(p.photo)}" alt="">`:'Add<br>photo'}</button>${p.photo?`<button class="photo-rm" data-act="photo-del" data-pid="${esc(p.id)}">Remove</button>`:''}</div>
+          <div class="pfields"><input type="text" class="pname" id="pn-${esc(p.id)}" data-pid="${esc(p.id)}" value="${esc(p.name)}" aria-label="Player name">
+            <input type="text" class="pjob" id="pj-${esc(p.id)}" data-pjob="${esc(p.id)}" value="${esc(p.job||'')}" placeholder="job" aria-label="Job for ${esc(p.name)}">
+            <input type="text" class="pgrp" id="pg-${esc(p.id)}" data-pgroup="${esc(p.id)}" value="${esc(p.group||'')}" placeholder="group (for the too-alike rule)" aria-label="Group for ${esc(p.name)}"></div>
+          ${used.has(p.id)?'<span></span>':`<button class="x" data-act="del-player" data-pid="${esc(p.id)}" aria-label="Remove ${esc(p.name)}">×</button>`}</div>`).join('')}</div>
+        <input type="file" id="photoFile" accept="image/*" hidden>
+        <p class="muted small">Tap a circle to add a headshot. It's cropped to a square and shrunk, then stored in the ledger, so the website shows it too. Players who already appear in the timeline can be renamed but not removed. The optional group (comedian, actor, athlete…) lets the trio rules cross off groups of Traitors who'd all be from the same group.</p>` : '<div class="empty">No players yet. Add the cast above.</div>'}
     </div>
     <div class="section"><h3>Delete this game</h3>
       <div class="row"><button class="btn danger sm" data-act="del-game-ask">Delete “${esc(g.name)}”</button><span id="delConfirm" hidden><span class="small">This removes everything you logged.</span> <button class="btn danger sm" data-act="del-game">Yes, delete it</button> <button class="btn sm ghost" data-act="del-game-cancel">Keep it</button></span></div>
@@ -507,15 +538,17 @@ function voteBlock(g,src,table,seats,nm){
   const optsT=(sel,ex)=>`<option value="">—</option>`+table.filter(p=>p.id!==ex).map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
   const nRe=reCount(src), keys=['votes'].concat(reKeys(nRe));
   const label=k=>k==='votes'?'Voted for':k==='revote'?'Re-vote':'Re-vote '+(+k.slice(1)+2);
-  const rows=order.map((p,i)=>`<tr><td>${seats.includes(p.id)?`<span class="muted num small">${seats.indexOf(p.id)+1}</span> `:''}${esc(p.name)}${src.dagger===p.id?' <span class="pill a" title="Holds the dagger: this vote counts twice">🗡 ×2</span>':''}</td>${keys.map(k=>`<td><select id="b-${k}-${esc(p.id)}" data-k="${k}" data-pid="${esc(p.id)}" aria-label="${esc(p.name)}: ${label(k)}">${optsT((ballotObj(src,k))[p.id],p.id)}</select></td>`).join('')}</tr>`).join('');
+  const rows=order.map((p,i)=>`<tr><td><span class="who">${seats.includes(p.id)?`<span class="muted num small" style="min-width:1.4em">${seats.indexOf(p.id)+1}</span>`:''}${mini(p)}${esc(p.name)}</span>${src.dagger===p.id?' <span class="pill a" title="Holds the dagger: this vote counts twice">🗡 ×2</span>':''}</td>${keys.map(k=>`<td><select id="b-${k}-${esc(p.id)}" data-k="${k}" data-pid="${esc(p.id)}" aria-label="${esc(p.name)}: ${label(k)}">${optsT((ballotObj(src,k))[p.id],p.id)}</select></td>`).join('')}</tr>`).join('');
   const tally=obj=>{ const c={}; Object.entries(obj||{}).forEach(([v,t])=>{ if(t && table.some(p=>p.id===v)) c[t]=(c[t]||0)+(v===src.dagger?2:1); }); const a=Object.entries(c).sort((x,y)=>y[1]-x[1]); return a.length? a.map(([t,k])=>`<span class="pill a">${nm(t)} ${k}</span>`).join('') : '<span class="muted small">No votes entered</span>'; };
   return `<div class="row"><button class="btn sm" data-act="re-add">${nRe?'Add another re-vote':'Add a tie re-vote'}</button>${nRe?`<button class="btn sm ghost" data-act="re-del">Remove last re-vote</button>`:''}</div>
     <div class="tablewrap"><table class="votes"><thead><tr><th>Player</th>${keys.map(k=>`<th>${label(k)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>
     ${keys.map(k=>`<div class="tally">${k==='votes'?'':`<span class="label">${label(k)}</span>`}${tally(ballotObj(src,k))}</div>`).join('')}
     ${src.dagger?`<p class="muted small">Counts include ${nm(src.dagger)}'s dagger: their vote counts twice. The clues still treat it as one person's vote.</p>`:''}`;
 }
-const chipsFor=(list,sel,act)=>list.map(p=>`<button class="chip" aria-pressed="${(sel||[]).includes(p.id)}" data-act="${act}" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')||'<span class="muted small">Nobody to choose.</span>';
-const numGrid=(list,vals,attr,word)=>`<div class="bgrid">${list.map(p=>{ const v=+(vals||{})[p.id]||0; return `<div class="bcell"><span>${esc(p.name)}</span><select id="${attr}-${esc(p.id)}" data-${attr}="${esc(p.id)}" aria-label="${word} for ${esc(p.name)}"><option value="0">—</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${v===k?'selected':''}>${word} ${k}</option>`).join('')}</select></div>`; }).join('')}</div>`;
+/* a small headshot (or initials) for player pickers */
+const mini=p=>p&&p.photo? `<img class="mini" src="${esc(p.photo)}" alt="" draggable="false">` : `<span class="mini" aria-hidden="true">${esc(initials(p&&p.name))}</span>`;
+const chipsFor=(list,sel,act)=>list.map(p=>`<button class="chip" aria-pressed="${(sel||[]).includes(p.id)}" data-act="${act}" data-pid="${esc(p.id)}">${mini(p)}${esc(p.name)}</button>`).join('')||'<span class="muted small">Nobody to choose.</span>';
+const numGrid=(list,vals,attr,word)=>`<div class="bgrid">${list.map(p=>{ const v=+(vals||{})[p.id]||0; return `<div class="bcell"><span class="who">${mini(p)}${esc(p.name)}</span><select id="${attr}-${esc(p.id)}" data-${attr}="${esc(p.id)}" aria-label="${word} for ${esc(p.name)}"><option value="0">—</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${v===k?'selected':''}>${word} ${k}</option>`).join('')}</select></div>`; }).join('')}</div>`;
 const pickOne=(id,list,sel,attr,empty)=>`<select id="${id}" data-one="${attr}"><option value="">${empty||'—'}</option>${list.map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
 function carList(list,cars,word,markLast){
   // who's in each car (or breakfast group), A to Z, under the selectors
@@ -576,8 +609,8 @@ function renderEditor(g){
     const r=e.banished? roleOf(g,e.banished) : null;
     body=`${trNote()}
     <div class="section"><h3>Seating</h3><p class="muted small">Tap players in clockwise order, starting anywhere, or drag them into place. Drag a seat to move it, or focus it and use the arrow keys. The last seat sits next to the first. The votes below follow this order.</p>
-      <div class="seats" id="seatList">${seats.length? seats.map((id,i)=>`<span class="seat" draggable="true" tabindex="0" data-seat="${i}" aria-label="Seat ${i+1}: ${nm(id)}. Drag, or use the left and right arrow keys, to move."><b>${i+1}</b>${nm(id)}<button data-act="seat-del" data-i="${i}" aria-label="Remove ${nm(id)} from seat ${i+1}">×</button></span>`).join('') : '<span class="muted small">No seats yet. Tap or drag players here.</span>'}</div>
-      <div class="chips">${alive.map(p=>`<button class="chip ${seats.includes(p.id)?'used':''}" data-act="seat-add" data-pid="${esc(p.id)}" ${seats.includes(p.id)?'disabled':'draggable="true"'}>${esc(p.name)}</button>`).join('')}</div>
+      <div class="seats" id="seatList">${seats.length? seats.map((id,i)=>`<span class="seat" draggable="true" tabindex="0" data-seat="${i}" aria-label="Seat ${i+1}: ${nm(id)}. Drag, or use the left and right arrow keys, to move."><b>${i+1}</b>${mini(g.players.find(x=>x.id===id))}${nm(id)}<button data-act="seat-del" data-i="${i}" aria-label="Remove ${nm(id)} from seat ${i+1}">×</button></span>`).join('') : '<span class="muted small">No seats yet. Tap or drag players here.</span>'}</div>
+      <div class="chips">${alive.map(p=>`<button class="chip ${seats.includes(p.id)?'used':''}" data-act="seat-add" data-pid="${esc(p.id)}" ${seats.includes(p.id)?'disabled':'draggable="true"'}>${mini(p)}${esc(p.name)}</button>`).join('')}</div>
       <div class="row">${prevSeats?`<button class="btn sm" data-act="seat-copy" data-from="${esc(prevSeats.id)}">Copy the last seating (${prevSeats.episode?'episode '+prevSeats.episode:'#'+prevSeats.seq})</button>`:''}${seats.length?'<button class="btn sm ghost" data-act="seat-clear">Clear seating</button>':''}</div></div>
     <div class="section"><h3>The dagger</h3><div class="row"><label class="small" for="evDagger">Held by</label>${pickOne('evDagger',alive,e.dagger,'dagger','nobody')}<span class="muted small">Their vote counts twice in the tally.</span></div></div>
     <div class="section"><h3>Votes</h3><p class="muted small">Pick who each player voted for, in seating order (anyone not seated is listed last). Leave blank anyone who didn't vote. Add a re-vote for each extra ballot after a tie. For a double banishment, add a second roundtable straight after this one.</p>
@@ -656,12 +689,12 @@ function renderReport(g){
     const bar=`<div class="bar"><span style="${s>=0?`left:50%;width:${w}%;background:var(--traitor)`:`left:${50-w}%;width:${w}%;background:var(--faithful)`}"></span><i class="zero"></i></div>`;
     const lg=R.log[id]; const lastClue=lg.length? lg[lg.length-1] : null;
     const isOpen=expanded===id;
-    return `<tr class="click ${highlight===id?'sel':''}" data-act="expand" data-pid="${esc(id)}"><td class="rank">${r}</td><td><b>${esc(pname(g,id))}</b>${isT(id)?' <span class="pill t">Traitor</span>':''}<div class="muted small">${lastClue?esc(lastClue.label)+(lastClue.ep?' (ep '+lastClue.ep+')':''):'No clues yet'}</div></td><td>${dl}</td><td class="r num">${fmt(s)}</td><td class="r num">${chanceTxt(last,id)}</td><td style="width:20%">${bar}</td></tr>
+    return `<tr class="click ${highlight===id?'sel':''}" data-act="expand" data-pid="${esc(id)}"><td class="rank">${r}</td><td><div class="who">${avatar(g,id)}<div><b>${esc(pname(g,id))}</b>${isT(id)?' <span class="pill t">Traitor</span>':''}${jobOf(g,id)?`<span class="jobl">${esc(jobOf(g,id))}</span>`:''}</div></div><div class="muted small">${lastClue?esc(lastClue.label)+(lastClue.ep?' (ep '+lastClue.ep+')':''):'No clues yet'}</div></td><td>${dl}</td><td class="r num">${fmt(s)}</td><td class="r num">${chanceTxt(last,id)}</td><td style="width:20%">${bar}</td></tr>
       ${isOpen?`<tr><td></td><td colspan="5"><div class="clues">${lg.length? lg.map(c=>`<div class="clue"><span class="muted num">${c.ep?'Ep '+c.ep:'#'+c.at}</span><span>${esc(c.label)}</span><span class="num">${fmt(c.v)}</span></div>`).join('') : '<span class="muted">No clues have fired for this player yet.</span>'}</div></td></tr>`:''}`;
   }).join('');
   const outRows=Object.entries(last.out).sort((a,b)=>a[1].at-b[1].at).map(([id,o])=>{
     const how={murdered:'Murdered',banished:'Banished',left:'Left'}[o.how]; const cls=o.role==='Traitor'?'t':o.role==='Faithful'?'f':'n';
-    return `<tr><td>${esc(pname(g,id))}</td><td class="muted">${how}${o.ep?', episode '+o.ep:''}</td><td><span class="pill ${cls}">${o.role||'Role unknown'}</span>${o.hidden?' <span class="muted small">not revealed in the final</span>':''}</td><td class="r num">${fmt(last.score[id])}</td></tr>`; }).join('');
+    return `<tr><td><span class="who">${avatar(g,id)}${esc(pname(g,id))}</span></td><td class="muted">${how}${o.ep?', episode '+o.ep:''}</td><td><span class="pill ${cls}">${o.role||'Role unknown'}</span>${o.hidden?' <span class="muted small">not revealed in the final</span>':''}</td><td class="r num">${fmt(last.score[id])}</td></tr>`; }).join('');
   return `<div class="panel">${exampleNote(g)}${missingNote(g)}
     <div class="row spread"><h2>Report after ${g.events.some(e=>e.kind==='roundtable'&&e.final&&e.seq<=last.at)?'the final':esc(last.label.replace(/^Latest: /,''))}</h2>
       <div class="row"><label class="label" for="reportSet">Points used</label><select id="reportSet">${(R.sets||[]).map(o=>`<option value="${esc(o.key)}" ${o.key===R.set?'selected':''}>${esc(o.label)}${o.key===g.pointSet?' (game default)':''}</option>`).join('')}</select></div></div>
@@ -705,7 +738,7 @@ function renderKeys(g){
     const detail = open? `<tr><td></td><td colspan="${K.keys.length+3}"><div class="clues">${K.keys.map((k,i)=>{ const c=ch[k.id], isF=f.includes(k.id);
         const txt = k.id==='stayed' ? (c? `True since ${c.ep?'episode '+c.ep:'#'+c.at}: ${esc(c.why)}` : 'False: hasn\'t stayed out of a pile-on yet') : (c? `False since ${c.ep?'episode '+c.ep:'#'+c.at}: ${esc(c.why)}` : 'True');
         return `<div class="clue"><span class="num ${isF?'':'muted'}">Key ${i+1}</span><span>${esc(k.text)}<br><span class="muted">${txt}</span></span><span class="num">${isF?'✗':'✓'}</span></div>`; }).join('')}</div></td></tr>` : '';
-    return `<tr class="click" data-act="key-open" data-pid="${esc(id)}"><td><b>${nm(id)}</b>${tr.has(id)?' <span class="pill t">Traitor</span>':''}</td>${cells}<td class="r num kn" style="background:${keyShade(f.length)}">${f.length}</td><td class="r num muted">${rate(f.length)}</td></tr>${detail}`; }).join('');
+    return `<tr class="click" data-act="key-open" data-pid="${esc(id)}"><td><div class="who">${avatar(g,id)}<div><b>${nm(id)}</b>${tr.has(id)?' <span class="pill t">Traitor</span>':''}${jobOf(g,id)?`<span class="jobl">${esc(jobOf(g,id))}</span>`:''}</div></div></td>${cells}<td class="r num kn" style="background:${keyShade(f.length)}">${f.length}</td><td class="r num muted">${rate(f.length)}</td></tr>${detail}`; }).join('');
   const head=S.map(s=>`<th class="v" title="${esc(s.label)}">${esc(s.short)}</th>`).join('');
   const players=[...g.players].sort((a,b)=>{ const ia=last.inPlay.includes(a.id), ib=last.inPlay.includes(b.id);
     if(ia!==ib) return ia?-1:1; if(ia) return last.false[b.id].length-last.false[a.id].length || a.name.localeCompare(b.name);
@@ -748,7 +781,7 @@ function groupsSection(g,R){
   const ruled=[RO.sameGroup?`${RO.sameGroup.toLocaleString()} too alike`:'', RO.breakfast?`${RO.breakfast.toLocaleString()} together at breakfast`:'', RO.car?`${RO.car.toLocaleString()} together in a car`:'', RO.adjacent?`${RO.adjacent.toLocaleString()} side by side at a roundtable`:''].filter(Boolean).join(', ');
   const trend=S.map(s=>`<tr><td>${esc(s.label)}</td><td class="r num">${s.groups?s.groups.size:'—'}</td><td class="r num">${s.groups&&!s.groups.capped?s.groups.count.toLocaleString():'—'}</td><td class="r num">${s.groups&&!s.groups.capped?Object.values(s.groups.ruledOut||{}).reduce((a,b)=>a+b,0).toLocaleString():'—'}</td></tr>`).join('');
   const chances=last.inPlay.slice().sort((a,b)=>((G.chance||{})[b]||0)-((G.chance||{})[a]||0)).map(id=>{ const v=(G.chance||{})[id]||0;
-    return `<tr><td>${nm(id)}${showT&&(last.traitors||[]).includes(id)?' <span class="pill t">Traitor</span>':''}</td><td class="r num">${pctf(v)}</td><td style="width:45%"><div class="bar"><span style="left:0;width:${Math.round(v*100)}%;background:var(--accent)"></span></div></td><td class="r num muted">${fmt(last.score[id])}</td></tr>`; }).join('');
+    return `<tr><td><span class="who">${avatar(g,id)}${nm(id)}</span>${showT&&(last.traitors||[]).includes(id)?' <span class="pill t">Traitor</span>':''}</td><td class="r num">${pctf(v)}</td><td style="width:45%"><div class="bar"><span style="left:0;width:${Math.round(v*100)}%;background:var(--accent)"></span></div></td><td class="r num muted">${fmt(last.score[id])}</td></tr>`; }).join('');
   const top=(G.top||[]).map(t=>`<tr><td>${t.members.map(nm).join(', ')}</td><td class="r num">${fmt(t.points)}</td><td class="r num">${pctf(t.share)}</td></tr>`).join('');
   return `<div class="section"><h3>Who could the Traitors be?</h3>
     <p class="muted small" style="max-width:78ch">Fry's “possible universes”: every group of ${G.size} ${word} who could still be hiding among the ${last.inPlay.length} players in play. Anyone murdered or banished is crossed off, and each remaining group is weighted by its members' points (a group's weight is e<sup>points</sup>, because each point is a log-likelihood). A player's chance is the share of that weight in groups that include them.</p>
@@ -873,6 +906,8 @@ document.addEventListener('click', async ev=>{
       if(!names.length){ toast('Type at least one name.'); return; }
       const res=await run(()=>api('POST',`/api/games/${g.id}/players`,{names}), r=> r.added? `Added ${r.added} player${r.added===1?'':'s'}` : 'Those names are already in the cast.');
       await applyGame(res); break; }
+    case 'photo-pick': { photoFor=b.dataset.pid; const f=$('#photoFile'); f.value=''; f.click(); break; }
+    case 'photo-del': await applyGame(await run(()=>api('DELETE',`/api/games/${g.id}/players/${b.dataset.pid}/photo`),'Photo removed')); break;
     case 'del-player': await applyGame(await run(()=>api('DELETE',`/api/games/${g.id}/players/${b.dataset.pid}`),'Removed')); break;
     case 'del-game-ask': $('#delConfirm').hidden=false; break;
     case 'del-game-cancel': $('#delConfirm').hidden=true; break;
@@ -904,6 +939,20 @@ document.addEventListener('click', async ev=>{
     case 'mode': chartMode=b.dataset.mode; render(); break;
   } }catch(e){ /* message already shown */ }
 });
+let photoFor=null;
+/* A headshot, cropped to a square (keeping a little more of the top, where faces usually are) and shrunk to 256 pixels,
+   as a JPEG data: URL, small enough to keep in the ledger. */
+function shrinkPhoto(file){
+  return new Promise((ok,fail)=>{
+    if(!/^image\//.test(file.type)){ fail(new Error('Choose an image file.')); return; }
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ const n=Math.min(img.naturalWidth,img.naturalHeight), S=256, c=document.createElement('canvas'); c.width=S; c.height=S;
+      const x=(img.naturalWidth-n)/2, y=(img.naturalHeight-n)/2*0.6;
+      c.getContext('2d').drawImage(img,x,y,n,n,0,0,S,S); URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg',0.85)); };
+    img.onerror=()=>{ URL.revokeObjectURL(url); fail(new Error("That image couldn't be read.")); };
+    img.src=url;
+  }).catch(e=>{ showStatus(e.message); throw e; });
+}
 function toggleIn(obj,key,id){ const a=obj[key]||[]; obj[key]= a.includes(id)? a.filter(x=>x!==id) : a.concat(id); }
 async function saveEvent(g){
   const e=JSON.parse(JSON.stringify(editing.ev));
@@ -924,6 +973,9 @@ document.addEventListener('change', async ev=>{
     if(!g) return;
     if(t.id==='addEp'){ const sel=$('#addAfter'); if(sel) sel.value=placeFor(g,parseInt(t.value,10)||0); return; }
     if(t.id==='gameName'){ const v=t.value.trim(); if(v){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{name:v}),'Renamed')); } return; }
+    if(t.id==='photoFile'){ if(t.files && t.files[0] && photoFor){ const who=photoFor; photoFor=null; const data=await shrinkPhoto(t.files[0]);
+      await applyGame(await run(()=>api('POST',`/api/games/${g.id}/players/${who}/photo`,{data}),'Photo saved')); } return; }
+    if(t.dataset.pjob!==undefined){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pjob}`,{job:t.value.trim()}),'Saved')); return; }
     if(t.dataset.pgroup){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pgroup}`,{group:t.value.trim()}),'Saved')); return; }
     if(t.dataset.rule){ const v=t.type==='checkbox'?t.checked:t.value; await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{rules:{[t.dataset.rule]:v}}),'Saved')); return; }
     if(t.dataset.pid && t.closest('.pitem')){ const v=t.value.trim(); if(v){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pid}`,{name:v}),'Renamed')); } return; }

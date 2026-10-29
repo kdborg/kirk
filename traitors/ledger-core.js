@@ -93,13 +93,21 @@
     return rules;
   }
 
+  /* A player's headshot (stored in the database) as a URL the page can show; cached so it's made once per photo. */
+  const PHOTO_URLS = {};
+  function photoUrl(r) {
+    if (!r.photo || typeof Blob === 'undefined' || typeof URL === 'undefined' || !URL.createObjectURL) return '';
+    const key = r.id + ':' + r.photo.length;
+    if (!PHOTO_URLS[key]) PHOTO_URLS[key] = URL.createObjectURL(new Blob([r.photo], {type: r.photo_type || 'image/jpeg'}));
+    return PHOTO_URLS[key];
+  }
   function loadGame(db, gid) {
     const g = rows(db, 'SELECT * FROM games WHERE id=?', [gid])[0];
     if (!g) throw new Error("That game doesn't exist.");
     if (!hasTable(db, 'events')) throw new Error('This database is from before the timeline. Open it once in the app (python3 server.py) to convert it, then upload it again.');
-    const grpCol = hasCol(db, 'players', 'grp');
-    const players = rows(db, `SELECT id, name${grpCol ? ', grp' : ''} FROM players WHERE game_id=? ORDER BY sort, id`, [gid])
-      .map(r => ({id: String(r.id), name: r.name, group: r.grp || ''}));
+    const grpCol = hasCol(db, 'players', 'grp'), jobCol = hasCol(db, 'players', 'job'), photoCol = hasCol(db, 'players', 'photo');
+    const players = rows(db, `SELECT id, name${grpCol ? ', grp' : ''}${jobCol ? ', job' : ''}${photoCol ? ', photo, photo_type' : ''} FROM players WHERE game_id=? ORDER BY sort, id`, [gid])
+      .map(r => ({id: String(r.id), name: r.name, group: r.grp || '', job: r.job || '', photo: photoUrl(r)}));
     const pts = {}; rows(db, 'SELECT * FROM points WHERE game_id=?', [gid]).forEach(r => { pts[r.clue] = r; });
     const points = {}, extras = {};
     CLUES.forEach(c => { points[c] = c in pts ? pts[c].value : (c in EXTRA ? EXTRA[c] : SETS.fry[c]); });
