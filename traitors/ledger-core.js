@@ -49,7 +49,7 @@
   const FIELDS = {
     traitors: {players: []}, murder: {players: []}, recruit: {players: []}, breakfast: {groups: {}},
     mission: {title: '', shields: [], dagger: '', cars: {}},
-    roundtable: {seats: [], votes: {}, revote: {}, moreRevotes: [], dagger: '', banished: '', role: '', final: false},
+    roundtable: {seats: [], votes: {}, revote: {}, moreRevotes: [], dagger: '', banished: '', role: '', chance: false, final: false},
     left: {players: [], roles: {}}, note: {},
   };
 
@@ -150,9 +150,9 @@
   function eventLabel(ev, nm) {
     const names = ids => ids.map(i => nm[i] || '?').join(', ');
     switch (ev.kind) {
-      case 'murder': return `${names(ev.players || [])} murdered`;
+      case 'murder': return (ev.players || []).length ? `${names(ev.players)} murdered` : 'Murder (nobody picked yet)';
       case 'roundtable': return ev.banished ? `${nm[ev.banished] || '?'} banished` : 'Roundtable, nobody banished yet';
-      case 'left': return `${names(ev.players || [])} left`;
+      case 'left': return (ev.players || []).length ? `${names(ev.players)} left` : 'Left the game (nobody picked yet)';
       case 'recruit': return `${names(ev.players || [])} recruited`;
       default: return KINDS[ev.kind] || ev.kind;
     }
@@ -271,6 +271,7 @@
         const lastRv = res.length ? Object.entries(res[res.length - 1][1]).filter(([v, t]) => t && !(v in out)) : [];
         const T = ev.banished;
         const role = banishedRole(g, ev, known);
+        const shown = ev.final ? '' : role;   // banishments in the final don't reveal the role, so no clue fires on them
         if (fb.length) {
           rt += 1;
           const earlier = ballots.slice();
@@ -280,7 +281,7 @@
             const c = {}; fb.forEach(([, t]) => { c[t] = (c[t] || 0) + 1; });
             fb.forEach(([v, t]) => { if (c[t] === 1) add(v, pts.burn, `Early burn vote on ${name[t] || '?'}`, ev, 'burn'); });
           }
-          if (T && role === 'Traitor') {
+          if (T && shown === 'Traitor') {
             const tn = name[T] || '?', dec = lastRv.length ? lastRv : fb;
             dec.forEach(([v, t]) => {
               if (v === T) return;
@@ -311,7 +312,7 @@
             });
           }
         }
-        if (T && !(T in out)) { out[T] = {at, ep: ev.episode, how: 'banished', role}; mark = 'B · ' + (short[T] || '?'); }
+        if (T && !(T in out)) { out[T] = {at, ep: ev.episode, how: 'banished', role, hidden: !!ev.final}; mark = 'B · ' + (short[T] || '?'); }
       } else if (k === 'left') {
         const nw = (ev.players || []).filter(p => !(p in out));
         nw.forEach(p => { out[p] = {at, ep: ev.episode, how: 'left', role: (ev.roles || {})[p] || ''}; });
@@ -328,6 +329,83 @@
     return {snaps, log, out, rt, known, rules: g.rules};
   }
 
+
+  /* ---------------- the Keys: a separate checklist, not Turing points (port of compute_keys in server.py) ---------------- */
+  const KEYS = [
+    ['lastvote', "No banished Traitor's last vote went to them"],
+    ['murdered', 'They have never voted at a roundtable for someone the Traitors murdered that night'],
+    ['burn', "They didn't cast a lone vote in the first three roundtables"],
+    ['victim', "No murder victim's last vote was for them"],
+    ['stayed', 'They have stayed out of a pile-on on a banished Traitor'],
+    ['piled', "They haven't voted to banish a Traitor on the night they went"],
+    ['lone', 'They have never cast a lone vote'],
+  ];
+  const KEY_RATES = {0: [192, .08], 1: [1521, .18], 2: [1172, .20], 3: [649, .29], 4: [285, .27], 5: [43, .58], 6: [5, .80]};
+  function computeKeys(g) {
+    const P = g.players, name = {}, short = shortNames(P), broke = {};
+    P.forEach(p => { name[p.id] = p.name; broke[p.id] = {}; });
+    const out = {}, snaps = [], lastVote = {};
+    let ballots = [], rt = 0;
+    const nm = id => name[id] || '?';
+    const mark = (p, key, ev, why) => { if (p in broke && !(key in broke[p])) broke[p][key] = {at: ev.seq, ep: ev.episode, why}; };
+    const falseKeys = p => KEYS.map(k => k[0]).filter(k => (k !== 'stayed' && k in broke[p]) || (k === 'stayed' && !(k in broke[p])));
+    const snap = (ev, label, m) => {
+      const inPlay = P.map(p => p.id).filter(id => !(id in out)), f = {};
+      inPlay.forEach(p => { f[p] = falseKeys(p); });
+      snaps.push({n: snaps.length + 1, at: ev.seq, ep: ev.episode, label, short: m, inPlay, false: f, out: JSON.parse(JSON.stringify(out))});
+    };
+    let lastSnapped = null;
+    g.events.forEach(ev => {
+      const k = ev.kind, seq = ev.seq; let m = null;
+      if (k === 'murder' && (ev.players || []).length) {
+        const victims = ev.players.filter(p => !(p in out));
+        victims.forEach(v => { if (v in lastVote) mark(lastVote[v], 'victim', ev, `${nm(v)}'s last vote was for them, then ${nm(v)} was murdered`); });
+        ballots.forEach(b => { if (b.rt === rt && victims.includes(b.target)) mark(b.voter, 'murdered', ev, `Voted for ${nm(b.target)}, who was then murdered`); });
+        victims.forEach(v => { out[v] = {at: seq, ep: ev.episode, how: 'murdered', role: 'Faithful'}; });
+        if (victims.length) m = 'M · ' + victims.map(p => short[p] || '?').join(', ');
+      } else if (k === 'roundtable' && ev.votes && Object.keys(ev.votes).length) {
+        const fb = Object.entries(ev.votes).filter(([v, t]) => t && !(v in out));
+        const res = revoteBallots(ev);
+        const last = res.length ? Object.entries(res[res.length - 1][1]).filter(([v, t]) => t && !(v in out)) : [];
+        if (fb.length) {
+          rt += 1;
+          const cnt = {}; fb.forEach(([, t]) => { cnt[t] = (cnt[t] || 0) + 1; });
+          fb.forEach(([v, t]) => {
+            lastVote[v] = t;
+            if (cnt[t] === 1) { mark(v, 'lone', ev, `Lone vote for ${nm(t)}`); if (rt <= 3) mark(v, 'burn', ev, `Lone vote for ${nm(t)} at roundtable ${rt}`); }
+          });
+          last.forEach(([v, t]) => { lastVote[v] = t; });
+          const B = ev.banished;
+          if (B && ev.role === 'Traitor' && !ev.final) {   // roles aren't revealed in the final
+            const bn = nm(B), dec = last.length ? last : fb;
+            dec.forEach(([v, t]) => { if (v === B) return; if (t === B) mark(v, 'piled', ev, `Voted to banish ${bn}, a Traitor`); else mark(v, 'stayed', ev, `Voted for ${nm(t)} when ${bn}, a Traitor, was banished`); });
+            const d = dec.find(x => x[0] === B) || fb.find(x => x[0] === B);
+            if (d && d[1]) mark(d[1], 'lastvote', ev, `${bn}, a banished Traitor, cast their last vote for them`);
+          }
+          ballots = ballots.concat(fb.map(([v, t]) => ({rt, voter: v, target: t})));
+        }
+      }
+      if (k === 'roundtable') {
+        const B = ev.banished;
+        if (B && !(B in out)) { out[B] = {at: seq, ep: ev.episode, how: 'banished', role: ev.role || '', hidden: !!ev.final}; m = 'B · ' + (short[B] || '?'); }
+      } else if (k === 'left') {
+        const nw = (ev.players || []).filter(p => !(p in out));
+        nw.forEach(p => { out[p] = {at: seq, ep: ev.episode, how: 'left', role: (ev.roles || {})[p] || ''}; });
+        if (nw.length) m = 'L · ' + nw.map(p => short[p] || '?').join(', ');
+      }
+      if (m) { snap(ev, eventLabel(ev, name), m); lastSnapped = seq; }
+    });
+    const E = g.events;
+    if (E.length && lastSnapped !== E[E.length - 1].seq) {
+      const shown = [...E].reverse().find(e => e.kind !== 'note') || E[E.length - 1];
+      if (shown.seq > (lastSnapped || 0)) snap(E[E.length - 1], 'Latest: ' + eventLabel(shown, name), 'Now');
+    }
+    const known = new Set(); E.forEach(e => { if (e.kind === 'traitors' || e.kind === 'recruit') (e.players || []).forEach(p => known.add(p)); });
+    const rates = {}; Object.entries(KEY_RATES).forEach(([n, [c, r]]) => { rates[n] = {count: c, traitor: r}; });
+    return {keys: KEYS.map(([id, text]) => ({id, text})), rates, snaps, changes: broke, traitors: pySort([...known])};
+  }
+  function keysGame(db, gid) { return computeKeys(loadGame(db, gid)); }
+
   function scoreGame(db, gid, setKey) {
     const g = loadGame(db, gid);
     const key = setKeys(g).includes(setKey) ? setKey : g.pointSet;
@@ -336,6 +414,6 @@
     return R;
   }
 
-  root.LedgerCore = {SETS, EXTRA, KINDS, FIELDS, listGames, loadGame, compute, scoreGame, pointsFor, setKeys, setLabel, revoteBallots, tally, eventLabel, shortNames};
+  root.LedgerCore = {SETS, EXTRA, KINDS, FIELDS, listGames, loadGame, compute, scoreGame, pointsFor, setKeys, setLabel, revoteBallots, tally, eventLabel, shortNames, computeKeys, keysGame};
   if (typeof module !== 'undefined') module.exports = root.LedgerCore;
 })(typeof window !== 'undefined' ? window : globalThis);

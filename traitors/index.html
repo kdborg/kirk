@@ -107,6 +107,8 @@ nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--
 .evk{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
 .evbtns{gap:4px;flex-wrap:nowrap}
 .addkinds{gap:6px}
+.carlist{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.carrow{display:grid;grid-template-columns:5.5em 1fr auto;gap:8px;align-items:center;border-bottom:1px solid var(--line);padding:4px 0}
 .eprow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:var(--r);padding:8px 12px;background:var(--bg)}
 .eprow .epn{font-family:var(--display);font-weight:700;font-size:1.05rem;min-width:3.2em}
 .eprow .sum{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
@@ -116,8 +118,10 @@ nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--
 .chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:4px 11px;font-size:.88rem}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .chip.used{opacity:.4}
-.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px}
-.bcell{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid var(--line);border-radius:var(--r);padding:4px 4px 4px 9px;background:var(--bg);font-size:.9rem}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:8px}
+.bcell{display:grid;grid-template-columns:minmax(0,1fr) 8.5em;align-items:center;gap:8px;border:1px solid var(--line);border-radius:var(--r);padding:6px 6px 6px 10px;background:var(--bg);font-size:.92rem}
+.bcell span{overflow-wrap:anywhere}
+.bcell select{width:100%}
 .bcell.last{border-color:var(--accent);background:var(--accent-soft)}
 .seats{display:flex;flex-wrap:wrap;gap:6px;counter-reset:seat}
 .seat{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--accent);border-radius:var(--r);padding:3px 4px 3px 8px;background:var(--accent-soft);font-size:.9rem;cursor:grab;user-select:none;-webkit-user-select:none}
@@ -171,6 +175,15 @@ body.readonly [data-act="new-game"], body.readonly .stickybar, body.readonly .rw
 body.readonly [data-act="re-add"], body.readonly [data-act="re-del"],
 body.readonly [data-act="seat-copy"], body.readonly [data-act="seat-clear"]{display:none!important}
 body.readonly .editor-ro select:disabled, body.readonly .editor-ro textarea:disabled{opacity:1;color:var(--fg)}
+/* keys report: its own look, so it isn't mistaken for the Turing points */
+.keylist{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:3px;font-size:.92rem}
+.keytable th.c,.keytable td.kc{text-align:center;width:2.2em;padding:6px 2px}
+.keytable td.kf{color:var(--warn);font-weight:700}
+.keytable td.kt{color:var(--faithful)}
+.keytable td.kn{font-weight:700;border-radius:4px}
+.keygrid{font-size:.8rem} .keygrid th.v{writing-mode:vertical-rl;transform:rotate(180deg);text-transform:none;letter-spacing:0;font-weight:500;white-space:nowrap;vertical-align:bottom;padding:6px 2px}
+.keygrid td.kg{text-align:center;padding:3px 2px;min-width:1.9em;border-left:1px solid var(--surface)} .keygrid td.kg.t{color:var(--traitor);font-weight:700} .keygrid td.kg.f{color:var(--faithful);font-weight:700}
+.keygrid td:first-child{white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1}
 .ulegend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted)} .ulegend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
 .utip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 9px;font-size:.82rem;box-shadow:0 2px 8px rgba(0,0,0,.12);white-space:nowrap;z-index:5}
 .uchart{position:relative}
@@ -213,6 +226,7 @@ body.readonly .editor-ro select:disabled, body.readonly .editor-ro textarea:disa
   <p id="roInfo" class="rolabel" hidden></p>
   <nav class="tabs" role="tablist">
     <button role="tab" data-tab="report" aria-selected="true">Report</button>
+    <button role="tab" data-tab="keys" aria-selected="false">Keys</button>
     <button role="tab" data-tab="timeline" aria-selected="false">Timeline</button>
     <button role="tab" data-tab="players" aria-selected="false">Players</button>
     <button role="tab" data-tab="points" aria-selected="false">Points</button>
@@ -267,6 +281,7 @@ function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 
 /* ---------------- state ---------------- */
+let keysData=null, keyOpen=null;
 let games={}, full=null, score=null, savedReports=[], currentId=lsGet('rl.current')||'', tab=(t=>t==='episodes'?'timeline':t)(lsGet('rl.tab')||'report');
 let editing=null;      // {gameId, id (null for a new event), after, kind, episode, ev: working copy of the event's fields}
 let exportInfo=null, chartMode='score', reportSet=null, highlight=null, expanded=null, busy=false, showT=lsGet('rl.showT')!=='0';
@@ -300,6 +315,7 @@ function staticApi(method, path){
   if(!m[1]) return C.listGames(DB);
   if(!m[2]) return C.loadGame(DB, +m[1]);
   if(m[2]==='score') return C.scoreGame(DB, +m[1], u.searchParams.get('set'));
+  if(m[2]==='keys') return C.keysGame(DB, +m[1]);
   if(m[2]==='reports') return [];
   throw new Error('Not available in the read-only view.');
 }
@@ -320,7 +336,7 @@ async function run(fn, okMsg){
 }
 async function refreshList(){ const list=await api('GET','/api/games'); games={}; list.forEach(g=>games[g.id]=g); if(!games[currentId]){ const ids=list.filter(g=>!g.example).concat(list.filter(g=>g.example)).map(g=>g.id); currentId=ids[0]||''; lsSet('rl.current',currentId); } }
 async function loadCurrent(){ full=null; score=null; savedReports=[]; if(!currentId) return; full=await api('GET','/api/games/'+currentId); await loadScore(); }
-async function loadScore(){ if(!full){ score=null; return; } score=await api('GET','/api/games/'+full.id+'/score'+(reportSet?('?set='+encodeURIComponent(reportSet)):'')); reportSet=score.set; savedReports=await api('GET','/api/games/'+full.id+'/reports'); }
+async function loadScore(){ if(!full){ score=null; keysData=null; return; } score=await api('GET','/api/games/'+full.id+'/score'+(reportSet?('?set='+encodeURIComponent(reportSet)):'')); reportSet=score.set; keysData=await api('GET','/api/games/'+full.id+'/keys'); savedReports=await api('GET','/api/games/'+full.id+'/reports'); }
 async function applyGame(g){ full=g; games[g.id]={id:g.id,name:g.name,example:g.example}; await loadScore(); render(); }
 async function boot(){
   try{ await run(async()=>{ if(!(await hasServer())) await openStatic(); await refreshList(); await loadCurrent(); }); }catch(e){}
@@ -339,6 +355,7 @@ function render(){
       p.querySelectorAll('select,input,textarea,button').forEach(el=>{ if(el.dataset.act!=='ev-cancel') el.disabled=true; });
       p.querySelectorAll('[draggable]').forEach(el=>el.removeAttribute('draggable')); } }
   else if(tab==='points') m.innerHTML=renderPoints(g);
+  else if(tab==='keys') m.innerHTML=renderKeys(g);
   else { m.innerHTML=renderReport(g); }
 }
 function renderGameSel(){
@@ -396,7 +413,7 @@ const KIND_ORDER = ['traitors','murder','breakfast','mission','recruit','roundta
 const BLANK = {
   traitors:{players:[]}, murder:{players:[]}, recruit:{players:[]}, breakfast:{groups:{}},
   mission:{title:'', shields:[], dagger:'', cars:{}},
-  roundtable:{seats:[], votes:{}, revote:{}, moreRevotes:[], dagger:'', banished:'', role:'', final:false},
+  roundtable:{seats:[], votes:{}, revote:{}, moreRevotes:[], dagger:'', banished:'', role:'', chance:false, final:false},
   left:{players:[], roles:{}}, note:{},
 };
 const blankEvent = kind => Object.assign({note:''}, JSON.parse(JSON.stringify(BLANK[kind]||{})));
@@ -405,6 +422,7 @@ const evPos = (g,id) => g.events.findIndex(e=>e.id===id);
 function eventsBefore(g){
   if(!editing) return g.events;
   if(editing.id){ const i=evPos(g,editing.id); return g.events.slice(0, i<0?g.events.length:i); }
+  if(editing.after==='start') return [];
   if(editing.after){ const i=evPos(g,editing.after); return g.events.slice(0, i+1); }
   return g.events;
 }
@@ -421,7 +439,7 @@ function evTitle(g,e){
   switch(e.kind){
     case 'murder': return `${names(e.players)||'Nobody'} murdered`;
     case 'recruit': return `${names(e.players)||'Someone'} recruited`;
-    case 'roundtable': return (e.final?'Final roundtable':'Roundtable')+(e.banished?`: ${esc(pname(g,e.banished))} banished`:'');
+    case 'roundtable': return (e.final?'Final roundtable':'Roundtable')+(e.banished?`: ${esc(pname(g,e.banished))} banished`:'')+(e.chance&&e.banished?' (by the chests)':'');
     case 'left': return `${names(e.players)||'Someone'} left the game`;
     case 'mission': return 'Mission'+(e.title?`: ${esc(e.title)}`:'');
     default: return esc(KIND_INFO[e.kind]?KIND_INFO[e.kind][0]:e.kind);
@@ -431,20 +449,29 @@ function evBits(g,e){
   const nm=id=>esc(pname(g,id)), bits=[];
   if(e.kind==='traitors'||e.kind==='recruit') bits.push(`<span class="pill t">${(e.players||[]).map(nm).join(', ')||'nobody picked yet'}</span>`);
   if(e.kind==='murder') (e.players||[]).forEach(id=>bits.push(`<span class="pill f">${nm(id)}</span>`));
-  if(e.kind==='breakfast'){ const v=Object.entries(e.groups||{}).filter(([,n])=>+n>0); if(v.length){ const mx=Math.max(...v.map(x=>+x[1])); bits.push(`<span class="pill n">Last in: ${v.filter(x=>+x[1]===mx).map(x=>nm(x[0])).join(', ')}</span>`); } }
+  if(e.kind==='breakfast'){ const v=Object.entries(e.groups||{}).filter(([,n])=>+n>0); if(v.length){ const mx=Math.max(...v.map(x=>+x[1])); bits.push(`<span class="pill n">Last in: ${v.filter(x=>+x[1]===mx).map(x=>pname(g,x[0])).sort((a,b)=>a.localeCompare(b)).map(esc).join(', ')}</span>`); } }
   if(e.kind==='mission'){ if(Object.values(e.cars||{}).some(x=>+x>0)) bits.push('<span class="pill n">Cars logged</span>'); (e.shields||[]).forEach(id=>bits.push(`<span class="pill n">Shield: ${nm(id)}</span>`)); if(e.dagger) bits.push(`<span class="pill a">Dagger: ${nm(e.dagger)}</span>`); }
   if(e.kind==='roundtable'){
     if((e.seats||[]).length) bits.push('<span class="pill n">Seating logged</span>');
     const nv=Object.values(e.votes||{}).filter(Boolean).length; if(nv) bits.push(`<span class="pill n">${nv} votes</span>`);
     const nr=LedgerRevotes(e); if(nr) bits.push(`<span class="pill n">${nr} re-vote${nr===1?'':'s'}</span>`);
     if(e.dagger) bits.push(`<span class="pill a">Dagger: ${nm(e.dagger)} ×2</span>`);
-    if(e.banished) bits.push(`<span class="pill ${e.role==='Traitor'?'t':'f'}">${e.role||'Faithful'}</span>`); else if(nv) bits.push('<span class="pill n">Nobody banished yet</span>');
+    if(e.banished) bits.push(`<span class="pill ${e.role==='Traitor'?'t':'f'}">${e.role||'Faithful'}${e.final?' · not revealed':''}</span>`); else if(nv) bits.push('<span class="pill n">Nobody banished yet</span>');
+    if(e.chance) bits.push('<span class="pill a">Decided by the chests</span>');
   }
   if(e.kind==='left') (e.players||[]).forEach(id=>bits.push(`<span class="pill n">${nm(id)}${(e.roles||{})[id]?' · '+e.roles[id]:''}</span>`));
   if(e.note) bits.push(`<span class="muted small">${esc(e.note.length>90?e.note.slice(0,88)+'…':e.note)}</span>`);
   return bits.join('');
 }
 function LedgerRevotes(e){ let n=Object.values(e.revote||{}).some(Boolean)?1:0; (e.moreRevotes||[]).forEach((m,i)=>{ if(Object.values(m||{}).some(Boolean)) n=i+2; }); return n; }
+/* where a new event for episode n belongs: after the last event of episode n or earlier */
+function placeFor(g,n){
+  if(!n || !g.events.some(e=>e.episode && e.episode>n)) return '';
+  // just before the first event of a later episode
+  const firstLater=g.events.findIndex(e=>e.episode && e.episode>n);
+  const before=g.events.slice(0,firstLater);
+  return before.length? before[before.length-1].id : 'start';
+}
 function lastEpisode(g){ for(let i=g.events.length-1;i>=0;i--) if(g.events[i].episode) return g.events[i].episode; return 1; }
 function renderTimeline(g){
   if(!g.players.length) return `<div class="panel">${exampleNote(g)}<div class="empty">Add the players first, on the Players tab.</div></div>`;
@@ -457,9 +484,9 @@ function renderTimeline(g){
   });
   const after=g.events.length? g.events[g.events.length-1] : null;
   const addBar=`<div class="section rw-only"><h3>Add to the timeline</h3>
-    <p class="muted small">Pick what happened. It goes at the end unless you choose to put it after an earlier event. The episode number is for reference: the order is what counts.</p>
-    <div class="row"><label class="small" for="addAfter">Put it</label><select id="addAfter"><option value="">at the end</option>${g.events.slice().reverse().map(e=>`<option value="${esc(e.id)}">after ${e.seq}. ${evTitle(g,e)}</option>`).join('')}</select>
-      <label class="small" for="addEp">Episode</label><input type="number" min="1" id="addEp" value="${lastEpisode(g)}" style="width:5em"></div>
+    <p class="muted small">Pick the episode first: the new event goes after everything already logged for that episode, so only the players still in the game at that point are offered. Change <b>Put it</b> to place it somewhere else.</p>
+    <div class="row"><label class="small" for="addEp">Episode</label><input type="number" min="1" id="addEp" value="${lastEpisode(g)}" style="width:5em">
+      <label class="small" for="addAfter">Put it</label><select id="addAfter" style="max-width:min(420px,100%)"><option value="">at the end</option>${g.events.slice().reverse().map(e=>`<option value="${esc(e.id)}">after ${e.seq}. ${e.episode?'Ep '+e.episode+' · ':''}${evTitle(g,e)}</option>`).join('')}<option value="start">at the very start</option></select></div>
     <div class="row addkinds">${KIND_ORDER.map(k=>`<button class="btn sm" data-act="ev-new" data-kind="${k}" title="${esc(KIND_INFO[k][1])}">${esc(KIND_INFO[k][0])}</button>`).join('')}</div></div>`;
   return `<div class="panel">${exampleNote(g)}${missingNote(g)}
     <div class="row spread"><h2>Timeline</h2><span class="muted small">${g.events.length} event${g.events.length===1?'':'s'}</span></div>
@@ -490,15 +517,36 @@ function voteBlock(g,src,table,seats,nm){
 const chipsFor=(list,sel,act)=>list.map(p=>`<button class="chip" aria-pressed="${(sel||[]).includes(p.id)}" data-act="${act}" data-pid="${esc(p.id)}">${esc(p.name)}</button>`).join('')||'<span class="muted small">Nobody to choose.</span>';
 const numGrid=(list,vals,attr,word)=>`<div class="bgrid">${list.map(p=>{ const v=+(vals||{})[p.id]||0; return `<div class="bcell"><span>${esc(p.name)}</span><select id="${attr}-${esc(p.id)}" data-${attr}="${esc(p.id)}" aria-label="${word} for ${esc(p.name)}"><option value="0">—</option>${[1,2,3,4,5,6,7,8].map(k=>`<option value="${k}" ${v===k?'selected':''}>${word} ${k}</option>`).join('')}</select></div>`; }).join('')}</div>`;
 const pickOne=(id,list,sel,attr,empty)=>`<select id="${id}" data-one="${attr}"><option value="">${empty||'—'}</option>${list.map(p=>`<option value="${esc(p.id)}" ${sel===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
+function carList(list,cars,word,markLast){
+  // who's in each car (or breakfast group), A to Z, under the selectors
+  word=word||'Car';
+  const by={}, none=[];
+  list.forEach(p=>{ const c=+(cars||{})[p.id]||0; if(c>0) (by[c]=by[c]||[]).push(p.name); else none.push(p.name); });
+  const nums=Object.keys(by).map(Number).sort((a,b)=>a-b);
+  if(!nums.length) return '';
+  const last=nums[nums.length-1];
+  return `<div class="carlist">${nums.map(c=>`<div class="carrow"><span class="pill ${markLast&&c===last?'t':'a'}">${word} ${c}</span><span class="small">${by[c].map(esc).join(', ')}${markLast&&c===last&&nums.length>1?' <span class="muted">(last in)</span>':''}</span><span class="muted small num">${by[c].length}</span></div>`).join('')}
+    ${none.length?`<div class="carrow"><span class="pill n">No ${word.toLowerCase()}</span><span class="small muted">${none.map(esc).join(', ')}</span><span class="muted small num">${none.length}</span></div>`:''}</div>`;
+}
+function stillTied(e){
+  // players level at the top of the last ballot (the dagger counted twice), if it ended in a tie
+  const balls=[e.votes||{}].concat(LedgerRevotes(e)?[e.revote||{}].concat(e.moreRevotes||[]).filter(m=>Object.values(m||{}).some(Boolean)):[]);
+  const last=balls[balls.length-1], c={};
+  Object.entries(last||{}).forEach(([v,t])=>{ if(t) c[t]=(c[t]||0)+(v===e.dagger?2:1); });
+  const vals=Object.values(c); if(!vals.length) return [];
+  const top=Math.max(...vals), lead=Object.keys(c).filter(k=>c[k]===top);
+  return lead.length>1? lead : [];
+}
 function daggerHolder(g){
   // the latest dagger won at a mission, unless a roundtable has used it since
   let d=''; eventsBefore(g).forEach(e=>{ if(e.kind==='mission'&&e.dagger) d=e.dagger; if(e.kind==='roundtable'&&e.dagger) d=''; }); return d;
 }
 function renderEditor(g){
   const e=editing.ev, kind=editing.kind, before=eventsBefore(g), out=outIn(before);
-  const alive=g.players.filter(p=>!out.has(p.id)), nm=id=>esc(pname(g,id));
+  // everyone still in the game at this point, A to Z (seats themselves keep their seating order)
+  const alive=g.players.filter(p=>!out.has(p.id)).sort((a,b)=>a.name.localeCompare(b.name)), nm=id=>esc(pname(g,id));
   const known=traitorsIn(before);
-  const pos=editing.id? `${evPos(g,editing.id)+1}` : editing.after? `new, after ${evPos(g,editing.after)+1}` : 'new, at the end';
+  const pos=editing.id? `${evPos(g,editing.id)+1}` : editing.after==='start'? 'new, at the very start' : editing.after? `new, after ${evPos(g,editing.after)+1}` : 'new, at the end';
   let body='';
   const trNote=()=>{ if(!known.size) return kind==='traitors'?'':`<div class="note warn small">No Traitors recorded before this point. Add a <b>Traitors chosen</b> event first, or every banished player will count as a Faithful.</div>`;
     const act=[...known.entries()].filter(([id])=>!out.has(id)), gone=[...known.keys()].filter(id=>out.has(id));
@@ -514,13 +562,14 @@ function renderEditor(g){
   } else if(kind==='breakfast'){
     const v=Object.entries(e.groups||{}).filter(([id,n])=>+n>0&&alive.some(p=>p.id===id)), mx=v.length?Math.max(...v.map(x=>+x[1])):0;
     body=`<div class="section"><h3>Breakfast order</h3><p class="muted small">Give everyone the number of the group they arrived in: 1 for the first group in, and so on. The highest number is the last group.</p>
-      ${numGrid(alive,e.groups,'grp','Group')}${mx?`<p class="small">Last group: <b>${v.filter(x=>+x[1]===mx).map(x=>nm(x[0])).join(', ')}</b></p>`:''}</div>`;
+      ${numGrid(alive,e.groups,'grp','Group')}${carList(alive,e.groups,'Group',true)}</div>`;
   } else if(kind==='mission'){
+    const abc=[...alive].sort((a,b)=>a.name.localeCompare(b.name));   // everyone still in the game, Traitors included, A to Z
     body=`<div class="section"><div class="row"><label class="small" for="evTitle">Mission name</label><input type="text" id="evTitle" data-text="title" value="${esc(e.title||'')}" placeholder="optional" style="flex:1;min-width:180px"></div></div>
-      <div class="section"><h3>Cars</h3><p class="muted small">If the cars to the mission are shown, give everyone their car number. Any car with three or more people crosses off every Traitor group with three of them in it.</p>${numGrid(alive,e.cars,'car','Car')}</div>
-      <div class="section"><h3>Shield</h3><p class="muted small">Who won a shield. Kept for reference; it doesn't change any score.</p><div class="chips">${chipsFor(alive,e.shields,'shield')}</div></div>
+      <div class="section"><h3>Cars</h3><p class="muted small">If the cars to the mission are shown, give everyone their car number. Any car with three or more people crosses off every Traitor group with three of them in it.</p>${numGrid(abc,e.cars,'car','Car')}${carList(abc,e.cars)}</div>
+      <div class="section"><h3>Shield</h3><p class="muted small">Who won a shield. Kept for reference; it doesn't change any score.</p><div class="chips">${chipsFor(abc,e.shields,'shield')}</div></div>
       <div class="section"><h3>The dagger</h3><p class="muted small">Who won the dagger, if anyone. Their vote at the next roundtable counts twice, and that roundtable fills it in for you.</p>
-        <div class="row">${pickOne('evDagger',alive,e.dagger,'dagger','nobody')}</div></div>`;
+        <div class="row">${pickOne('evDagger',abc,e.dagger,'dagger','nobody')}</div></div>`;
   } else if(kind==='roundtable'){
     const seats=(e.seats||[]).filter(id=>alive.some(p=>p.id===id));
     const prevSeats=[...before].reverse().find(x=>x.kind==='roundtable'&&(x.seats||[]).length);
@@ -535,8 +584,12 @@ function renderEditor(g){
       ${voteBlock(g,e,alive,seats,nm)}</div>
     <div class="section"><h3>Banished</h3>
       <div class="row"><label for="evBan" class="small">Banished player</label>${pickOne('evBan',alive,e.banished,'banished','nobody (yet)')}
-        ${r? (r.role? `<span class="pill ${r.role==='Traitor'?'t':'f'}">${r.role}</span><span class="muted small">${esc(r.why)}</span>` : `<select id="evRole" data-one="role"><option value="Faithful" ${e.role!=='Traitor'?'selected':''}>Faithful</option><option value="Traitor" ${e.role==='Traitor'?'selected':''}>Traitor</option></select><span class="muted small">${esc(r.why)}</span>`) : ''}</div>
-      <label class="small"><input type="checkbox" id="evFinal" data-act="toggle-final" ${e.final?'checked':''}> Part of the final (the report then says "after the final")</label></div>`;
+        ${r? (r.role? `<span class="pill ${r.role==='Traitor'?'t':'f'}">${r.role}</span><span class="muted small">${e.final?'Not revealed: banishments in the final don\'t show the role, so no clues or keys use it.':esc(r.why)}</span>` : `<select id="evRole" data-one="role"><option value="Faithful" ${e.role!=='Traitor'?'selected':''}>Faithful</option><option value="Traitor" ${e.role==='Traitor'?'selected':''}>Traitor</option></select><span class="muted small">${esc(r.why)}</span>`) : ''}</div>
+      ${(()=>{ const tied=stillTied(e); if(!tied.length && !e.chance) return '';
+        return `<div class="note small">${tied.length?`The last ballot is still tied: <b>${tied.map(nm).join(', ')}</b>.`:'The last ballot isn\'t tied.'}
+          <label style="display:block;margin-top:6px"><input type="checkbox" id="evChance" data-act="toggle-chance" ${e.chance?'checked':''}> Decided by chance: the tied players picked chests, and whoever didn't get a shield was banished</label>
+          ${e.chance&&e.banished&&tied.length&&!tied.includes(e.banished)?'<span style="color:var(--traitor)">The banished player wasn\'t one of the tied players. Check the votes.</span>':''}</div>`; })()}
+      <label class="small"><input type="checkbox" id="evFinal" data-act="toggle-final" ${e.final?'checked':''}> Part of the final: the banished player's role isn't revealed, so no clues or keys use it (and the report says "after the final")</label></div>`;
   } else if(kind==='left'){
     body=`<div class="section"><h3>Left the game</h3><p class="muted small">Walked out, removed, or confessed. Tap to mark, then set their role if it was revealed.</p><div class="chips">${chipsFor(alive,e.players,'tg')}</div>
       ${(e.players||[]).map(id=>`<div class="row small">${nm(id)} was <select id="lr-${esc(id)}" data-leftrole="${esc(id)}"><option value="">role not revealed</option><option ${(e.roles||{})[id]==='Faithful'?'selected':''}>Faithful</option><option ${(e.roles||{})[id]==='Traitor'?'selected':''}>Traitor</option></select></div>`).join('')}</div>`;
@@ -608,7 +661,7 @@ function renderReport(g){
   }).join('');
   const outRows=Object.entries(last.out).sort((a,b)=>a[1].at-b[1].at).map(([id,o])=>{
     const how={murdered:'Murdered',banished:'Banished',left:'Left'}[o.how]; const cls=o.role==='Traitor'?'t':o.role==='Faithful'?'f':'n';
-    return `<tr><td>${esc(pname(g,id))}</td><td class="muted">${how}${o.ep?', episode '+o.ep:''}</td><td><span class="pill ${cls}">${o.role||'Role unknown'}</span></td><td class="r num">${fmt(last.score[id])}</td></tr>`; }).join('');
+    return `<tr><td>${esc(pname(g,id))}</td><td class="muted">${how}${o.ep?', episode '+o.ep:''}</td><td><span class="pill ${cls}">${o.role||'Role unknown'}</span>${o.hidden?' <span class="muted small">not revealed in the final</span>':''}</td><td class="r num">${fmt(last.score[id])}</td></tr>`; }).join('');
   return `<div class="panel">${exampleNote(g)}${missingNote(g)}
     <div class="row spread"><h2>Report after ${g.events.some(e=>e.kind==='roundtable'&&e.final&&e.seq<=last.at)?'the final':esc(last.label.replace(/^Latest: /,''))}</h2>
       <div class="row"><label class="label" for="reportSet">Points used</label><select id="reportSet">${(R.sets||[]).map(o=>`<option value="${esc(o.key)}" ${o.key===R.set?'selected':''}>${esc(o.label)}${o.key===g.pointSet?' (game default)':''}</option>`).join('')}</select></div></div>
@@ -628,9 +681,52 @@ function renderReport(g){
       <p class="muted small">Saves a standalone page, using the points chosen above, in the <span class="num">reports</span> folder next to server.py, so you keep a snapshot of how things looked at this point.</p>
       ${savedReports.length? `<div class="eplist">${savedReports.map(r=>`<div class="eprow"><span class="epn">#${r.step}</span><div class="sum"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.file)}</a><span class="muted small">saved ${esc(r.created.replace('T',' '))}</span></div><div></div></div>`).join('')}</div>` : '<p class="muted small">No reports saved yet.</p>'}</div>
     <div class="section rw-only"><div class="row spread"><h3>Export as web pages</h3><button class="btn" data-act="export">Export this game</button></div>
-      <p class="muted small">Writes a folder of plain web pages: the report for every point set (with a menu to switch between them) and a Timeline page with everything you've logged. It needs no server, so you can open it straight from the folder or upload it to any web host. Export again after each episode to update it.</p>
+      <p class="muted small">Writes a folder of plain web pages: the report for every point set (with a menu to switch between them), a Keys page, and a Timeline page with everything you've logged. It needs no server, so you can open it straight from the folder or upload it to any web host. Export again after each episode to update it.</p>
       ${exportInfo&&exportInfo.folder?`<p class="small">Last export: <a href="${esc(exportInfo.url)}" target="_blank" rel="noopener">open it</a> · <span class="num muted">${esc(exportInfo.folder)}</span></p>`:''}</div>
     <div class="section"><h3>Reading the scores</h3><p class="muted small" style="max-width:75ch">The method is Hannah Fry's, from <a href="https://www.youtube.com/watch?v=twDvxNooI_4" target="_blank" rel="noopener">How would Alan Turing have played the Traitors?</a>. Across 20 completed seasons these clues ranked a random Traitor above a random Faithful about 58–59% of the time, against 50% for guessing. Treat the ranking as a nudge, not a verdict, and expect it to say little until the first Traitor is banished, since most clues fire on that night.</p></div>
+  </div>`;
+}
+
+/* keys report: a separate yes/no checklist, not the Turing points */
+function keyShade(n){ return n<=0? 'transparent' : `color-mix(in srgb, var(--warn) ${Math.min(85,12+n*12)}%, var(--surface))`; }
+function renderKeys(g){
+  const K=keysData;
+  if(!g.events.length) return `<div class="panel">${exampleNote(g)}<div class="empty">Add what's happened on the Timeline tab to see the keys.</div></div>`;
+  if(!K) return `<div class="panel"><div class="empty">Working out the keys…</div></div>`;
+  if(!K.snaps.length) return `<div class="panel">${exampleNote(g)}<div class="empty">The Keys report starts at the first murder or banishment.</div></div>`;
+  const S=K.snaps, last=S[S.length-1], tr=new Set(showT?K.traitors:[]), nm=id=>esc(pname(g,id));
+  const rate=n=>{ const r=K.rates[String(Math.min(n,6))]; return r? Math.round(r.traitor*100)+'%' : '—'; };
+  const order=[...last.inPlay].sort((a,b)=>last.false[b].length-last.false[a].length || pname(g,a).localeCompare(pname(g,b)));
+  const legend=`<ol class="keylist">${K.keys.map(k=>`<li>${esc(k.text)}</li>`).join('')}</ol>`;
+  const rows=order.map(id=>{ const f=last.false[id], ch=K.changes[id]||{}, open=keyOpen===id;
+    const cells=K.keys.map((k,i)=>{ const isF=f.includes(k.id), c=ch[k.id];
+      const why = k.id==='stayed' ? (c? `True since ${c.ep?'episode '+c.ep:'#'+c.at}: ${c.why}` : 'False: hasn\'t stayed out of a pile-on on a banished Traitor yet') : (c? `False since ${c.ep?'episode '+c.ep:'#'+c.at}: ${c.why}` : 'True');
+      return `<td class="kc ${isF?'kf':'kt'}" title="${i+1}. ${esc(k.text)}. ${esc(why)}">${isF?'✗':'✓'}</td>`; }).join('');
+    const detail = open? `<tr><td></td><td colspan="${K.keys.length+3}"><div class="clues">${K.keys.map((k,i)=>{ const c=ch[k.id], isF=f.includes(k.id);
+        const txt = k.id==='stayed' ? (c? `True since ${c.ep?'episode '+c.ep:'#'+c.at}: ${esc(c.why)}` : 'False: hasn\'t stayed out of a pile-on yet') : (c? `False since ${c.ep?'episode '+c.ep:'#'+c.at}: ${esc(c.why)}` : 'True');
+        return `<div class="clue"><span class="num ${isF?'':'muted'}">Key ${i+1}</span><span>${esc(k.text)}<br><span class="muted">${txt}</span></span><span class="num">${isF?'✗':'✓'}</span></div>`; }).join('')}</div></td></tr>` : '';
+    return `<tr class="click" data-act="key-open" data-pid="${esc(id)}"><td><b>${nm(id)}</b>${tr.has(id)?' <span class="pill t">Traitor</span>':''}</td>${cells}<td class="r num kn" style="background:${keyShade(f.length)}">${f.length}</td><td class="r num muted">${rate(f.length)}</td></tr>${detail}`; }).join('');
+  const head=S.map(s=>`<th class="v" title="${esc(s.label)}">${esc(s.short)}</th>`).join('');
+  const players=[...g.players].sort((a,b)=>{ const ia=last.inPlay.includes(a.id), ib=last.inPlay.includes(b.id);
+    if(ia!==ib) return ia?-1:1; if(ia) return last.false[b.id].length-last.false[a.id].length || a.name.localeCompare(b.name);
+    return (last.out[b.id]||{}).at-(last.out[a.id]||{}).at; });
+  const grid=players.map(p=>`<tr><td>${esc(p.name)}${tr.has(p.id)?' <span class="pill t">T</span>':''}</td>${S.map(s=>{ const o=s.out[p.id];
+      if(p.id in s.false){ const n=s.false[p.id].length; return `<td class="num kg" style="background:${keyShade(n)}" title="${esc(p.name)} after ${esc(s.label)}: ${n} false key${n===1?'':'s'}">${n}</td>`; }
+      if(o && o.at===s.at) return `<td class="kg ${o.role==='Traitor'?'t':o.role==='Faithful'?'f':''}" title="${esc(p.name)}: ${esc(o.how)}${o.role?', '+o.role:''}">${o.role==='Traitor'?'T':o.role==='Faithful'?'F':'?'}</td>`;
+      return '<td class="kg"></td>'; }).join('')}</tr>`).join('');
+  const rates=Object.entries(K.rates).map(([n,r])=>`<tr><td class="num">${n}${n==='6'?'+':''}</td><td class="r num">${r.count.toLocaleString()}</td><td class="r num">${Math.round(r.traitor*100)}%</td></tr>`).join('');
+  return `<div class="panel keys-report">${exampleNote(g)}
+    <div class="row spread"><h2>Keys report after ${esc(last.label.replace(/^Latest: /,''))}</h2><span class="pill n">Separate from the Turing points</span></div>
+    <p class="muted small" style="max-width:78ch">Like Allan Lichtman's Keys to the White House: seven true/false statements about each player, each phrased so that <b>true points to Faithful</b>. Count the false ones. The more keys a player has false, the more they look like a Traitor. The keys only use what everyone can see: votes, murders, and the roles revealed at banishments.</p>
+    <div class="section"><h3>The seven keys</h3>${legend}</div>
+    <div class="section"><h3>Keys now</h3><p class="muted small">Players still in play, most false keys first. ✓ the key is true (points to Faithful), ✗ false. Hover a mark, or tap a player, to see when and why each key turned. The last column is how often players with that many false keys were Traitors in the 44 completed seasons.</p>
+<div class="tablewrap"><table class="keytable"><thead><tr><th>Player</th>${K.keys.map((k,i)=>`<th class="c" title="${esc(k.text)}">${i+1}</th>`).join('')}<th class="r">False</th><th class="r">Were Traitors</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    ${K.traitors.length?`<div class="row"><label class="small"><input type="checkbox" id="showT" data-act="show-traitors" ${showT?'checked':''}> Show who the Traitors are</label></div>`:''}
+    <div class="section"><h3>False keys after each murder and banishment</h3><p class="muted small">Each cell is how many keys were false for that player at that point; darker means more. A row ends with T or F when the player leaves and their role is revealed. Along the top: M murdered, B banished, L left the game.</p>
+      <div class="tablewrap"><table class="keygrid"><thead><tr><th>Player</th>${head}</tr></thead><tbody>${grid}</tbody></table></div></div>
+    <div class="section"><h3>Reading the count</h3><p class="muted small">How often a player with that many false keys turned out to be a Traitor, before each roundtable in the 44 completed seasons, leaving out the final episodes (21% of players in play were Traitors). Five or more false keys is a likely Traitor but rare; none false is very likely Faithful; most players sit at 1 to 4, where the keys can't tell them apart well.</p>
+      <div class="tablewrap" style="max-width:420px"><table><thead><tr><th>False keys</th><th class="r">Cases</th><th class="r">Were Traitors</th></tr></thead><tbody>${rates}</tbody></table></div></div>
+    <div class="section rw-only"><div class="row spread"><h3>Export</h3><button class="btn" data-act="export">Export this game</button></div><p class="muted small">The exported pages include this Keys report as keys.html.</p></div>
   </div>`;
 }
 
@@ -761,14 +857,15 @@ function openEditor(g, e){
   const ev=blankEvent(e.kind);
   if(e.id) Object.keys(ev).forEach(f=>{ if(e[f]!==undefined) ev[f]=JSON.parse(JSON.stringify(e[f])); });
   editing={gameId:currentId, id:e.id||null, after:e.after||null, kind:e.kind, episode:e.episode||null, ev};
-  if(!e.id && e.kind==='roundtable'){ ev.dagger=daggerHolder(g); }
+  if(!e.id && e.kind==='roundtable'){ ev.dagger=daggerHolder(g);
+    if(e.episode && g.events.some(x=>x.kind==='roundtable'&&x.final&&x.episode===e.episode)) ev.final=true; }
   render(); window.scrollTo(0,0);
 }
 document.addEventListener('click', async ev=>{
   const tb=ev.target.closest('nav.tabs button'); if(tb){ setTab(tb.dataset.tab); return; }
   const b=ev.target.closest('[data-act]'); if(!b) return;
   const act=b.dataset.act, g=game();
-  if(busy && !['expand','hl','mode'].includes(act)) return;
+  if(busy && !['expand','hl','mode','key-open'].includes(act)) return;
   try{ switch(act){
     case 'new-game': await newGame(); break;
     case 'add-players': {
@@ -792,6 +889,7 @@ document.addEventListener('click', async ev=>{
     case 'seat-clear': editing.ev.seats=[]; render(); break;
     case 'seat-copy': { const src=g.events.find(x=>x.id===b.dataset.from); const out=outIn(eventsBefore(g)); editing.ev.seats=(src.seats||[]).filter(id=>!out.has(id)); render(); toast('Copied, minus anyone who has left since'); break; }
     case 'toggle-final': editing.ev.final=!editing.ev.final; render(); break;
+    case 'toggle-chance': editing.ev.chance=!editing.ev.chance; render(); break;
     case 're-add': { const src=editing.ev; src._nRe=reCount(src)+1; render(); break; }
     case 're-del': { const src=editing.ev; const n=reCount(src); if(n){ const k=reKeys(n)[n-1]; if(k==='revote') src.revote={}; else src.moreRevotes.splice(+k.slice(1)); src._nRe=n-1; } render(); break; }
     case 'ev-del-ask': $('#evDel').innerHTML='<span class="small">Delete this event?</span> <button class="btn danger sm" data-act="ev-del">Delete</button> <button class="btn sm ghost" data-act="ev-del-keep">Keep</button>'; break;
@@ -800,6 +898,7 @@ document.addEventListener('click', async ev=>{
     case 'ev-save': await saveEvent(g); break;
     case 'export': { const r=await run(()=>api('POST',`/api/games/${g.id}/export`), r=>`Exported ${r.files.length} pages`); exportInfo=r; render(); window.open(r.url,'_blank','noopener'); break; }
     case 'save-report': { const r=await run(()=>api('POST',`/api/games/${g.id}/reports`,{set:score.set}), r=>`Saved ${r.file}`); savedReports=await api('GET',`/api/games/${g.id}/reports`); render(); window.open(r.url,'_blank','noopener'); break; }
+    case 'key-open': keyOpen = keyOpen===b.dataset.pid? null : b.dataset.pid; render(); break;
     case 'expand': expanded = expanded===b.dataset.pid? null : b.dataset.pid; highlight=expanded; render(); break;
     case 'hl': highlight = highlight===b.dataset.pid? null : b.dataset.pid; render(); break;
     case 'mode': chartMode=b.dataset.mode; render(); break;
@@ -823,6 +922,7 @@ document.addEventListener('change', async ev=>{
     if(t.id==='reportSet'){ reportSet=t.value; await run(loadScore); render(); return; }
     if(t.id==='gameSel'){ currentId=t.value; lsSet('rl.current',currentId); editing=null; expanded=null; highlight=null; reportSet=null; exportInfo=null; await run(loadCurrent); render(); return; }
     if(!g) return;
+    if(t.id==='addEp'){ const sel=$('#addAfter'); if(sel) sel.value=placeFor(g,parseInt(t.value,10)||0); return; }
     if(t.id==='gameName'){ const v=t.value.trim(); if(v){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{name:v}),'Renamed')); } return; }
     if(t.dataset.pgroup){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}/players/${t.dataset.pgroup}`,{group:t.value.trim()}),'Saved')); return; }
     if(t.dataset.rule){ const v=t.type==='checkbox'?t.checked:t.value; await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{rules:{[t.dataset.rule]:v}}),'Saved')); return; }
@@ -830,8 +930,8 @@ document.addEventListener('change', async ev=>{
     if(editing){
       const e=editing.ev;
       if(t.id==='evEp'){ editing.episode=parseInt(t.value,10)||null; return; }
-      if(t.dataset.grp){ e.groups=e.groups||{}; e.groups[t.dataset.grp]=+t.value; render(); return; }
-      if(t.dataset.car){ e.cars=e.cars||{}; e.cars[t.dataset.car]=+t.value; return; }
+      if(t.dataset.grp){ e.groups=e.groups||{}; e.groups[t.dataset.grp]=+t.value; const y=window.scrollY; render(); window.scrollTo(0,y); const el=document.getElementById('grp-'+t.dataset.grp); if(el) el.focus(); return; }
+      if(t.dataset.car){ e.cars=e.cars||{}; e.cars[t.dataset.car]=+t.value; const y=window.scrollY; render(); window.scrollTo(0,y); const el=document.getElementById('car-'+t.dataset.car); if(el) el.focus(); return; }
       if(t.dataset.k){ ballotObj(e, t.dataset.k)[t.dataset.pid]=t.value; render(); return; }
       if(t.dataset.leftrole){ e.roles=e.roles||{}; e.roles[t.dataset.leftrole]=t.value; return; }
       if(t.dataset.one){ e[t.dataset.one]=t.value; render(); return; }
@@ -842,7 +942,7 @@ document.addEventListener('change', async ev=>{
     if(t.dataset.extra){ await applyGame(await run(()=>api('PUT',`/api/games/${g.id}`,{extras:{[t.dataset.extra]:t.checked}}),'Saved')); return; }
   }catch(e){ /* shown */ }
 });
-document.addEventListener('input', ev=>{ if(!editing) return; if(ev.target.id==='evNote') editing.ev.note=ev.target.value; else if(ev.target.dataset.text) editing.ev[ev.target.dataset.text]=ev.target.value; });
+document.addEventListener('input', ev=>{ if(ev.target.id==='addEp'){ const g=game(), sel=$('#addAfter'); if(g&&sel) sel.value=placeFor(g,parseInt(ev.target.value,10)||0); return; } if(!editing) return; if(ev.target.id==='evNote') editing.ev.note=ev.target.value; else if(ev.target.dataset.text) editing.ev[ev.target.dataset.text]=ev.target.value; });
 
 /* possible-groups chart: crosshair and tooltip */
 document.addEventListener('pointermove', ev=>{
@@ -908,7 +1008,7 @@ async function newGame(){
   currentId=g.id; lsSet('rl.current',g.id); editing=null; tab='players'; lsSet('rl.tab',tab); await applyGame(g);
   setTimeout(()=>{ const el=$('#gameName'); if(el){ el.focus(); el.select(); } },30);
 }
-window.addEventListener('themechange',()=>{ if(tab==='report') render(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{ if(tab==='report') render(); });
 
 boot();
 })();
