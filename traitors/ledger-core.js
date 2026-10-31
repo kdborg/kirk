@@ -45,12 +45,12 @@
   }
 
   const KINDS = {traitors: 'Traitors chosen', murder: 'Murder', breakfast: 'Breakfast', mission: 'Mission',
-                 recruit: 'Recruitment', roundtable: 'Roundtable', left: 'Left the game', note: 'Note'};
+                 recruit: 'Recruitment', roundtable: 'Roundtable', left: 'Left the game', endgame: 'Endgame vote', note: 'Note'};
   const FIELDS = {
     traitors: {players: []}, murder: {players: []}, recruit: {players: []}, breakfast: {groups: {}},
     mission: {title: '', shields: [], dagger: '', cars: {}},
     roundtable: {seats: [], votes: {}, revote: {}, moreRevotes: [], dagger: '', banished: '', role: '', chance: false, final: false},
-    left: {players: [], roles: {}}, note: {},
+    left: {players: [], roles: {}}, endgame: {votes: {}, result: ''}, note: {},
   };
 
   function revoteBallots(src) {
@@ -155,9 +155,16 @@
     }));
     return out;
   }
+  function endgameOutcome(ev) {
+    if (ev.result === 'end' || ev.result === 'nobody') return ev.result;
+    const v = Object.values(ev.votes || {});
+    if (!v.length) return '';
+    return v.every(x => x === 'end') ? 'end' : 'continue';
+  }
   function eventLabel(ev, nm) {
     const names = ids => ids.map(i => nm[i] || '?').join(', ');
     switch (ev.kind) {
+      case 'endgame': return {end: 'The game ended', nobody: 'The game ended, nobody won', continue: 'Endgame vote: banish again'}[endgameOutcome(ev)] || 'Endgame vote';
       case 'murder': return (ev.players || []).length ? `${names(ev.players)} murdered` : 'Murder (nobody picked yet)';
       case 'roundtable': return ev.banished ? `${nm[ev.banished] || '?'} banished` : 'Roundtable, nobody banished yet';
       case 'left': return (ev.players || []).length ? `${names(ev.players)} left` : 'Left the game (nobody picked yet)';
@@ -242,6 +249,7 @@
     const out = {}, lastGroups = [], bfDone = new Set(), snaps = [];
     let ballots = [], rt = 0;
     const known = {};
+    let over = null;
     const add = (p, v, label, ev, key) => { if (!(p in score)) return; v = +(v || 0); score[p] += v; log[p].push({at: ev.seq, ep: ev.episode, label, v, key}); };
     const snap = (ev, label, mark) => {
       const inPlay = P.map(p => p.id).filter(id => !(id in out));
@@ -321,10 +329,14 @@
           }
         }
         if (T && !(T in out)) { out[T] = {at, ep: ev.episode, how: 'banished', role, hidden: !!ev.final}; mark = 'B · ' + (short[T] || '?'); }
+        if (ev.final && !over && P.filter(p => !(p.id in out)).length <= 2) over = gameOver(ev, P, out, known, false);
       } else if (k === 'left') {
         const nw = (ev.players || []).filter(p => !(p in out));
         nw.forEach(p => { out[p] = {at, ep: ev.episode, how: 'left', role: (ev.roles || {})[p] || ''}; });
         if (nw.length) mark = 'L · ' + nw.map(p => short[p] || '?').join(', ');
+      } else if (k === 'endgame' && !over && ['end', 'nobody'].includes(endgameOutcome(ev))) {
+        over = gameOver(ev, P, out, known, endgameOutcome(ev) === 'nobody');
+        mark = 'End';
       }
       if (mark) { snap(ev, eventLabel(ev, name), mark); lastSnapped = at; }
     });
@@ -334,7 +346,27 @@
       const shown = [...E].reverse().find(e => e.kind !== 'note') || ev;
       if (shown.seq > (lastSnapped || 0)) snap(ev, 'Latest: ' + eventLabel(shown, name), 'Now');
     }
-    return {snaps, log, out, rt, known, rules: g.rules};
+    const left = P.map(p => p.id).filter(id => !(id in out));
+    return {snaps, log, out, rt, known, rules: g.rules, over, outlook: over ? null : outlook(left, known)};
+  }
+
+  // Who won: any Traitor still in the game takes the prize alone; with no Traitor left, the Faithful who remain share it.
+  function gameOver(ev, P, out, known, nobody) {
+    const left = P.map(p => p.id).filter(id => !(id in out));
+    const tr = left.filter(p => p in known);
+    return {at: ev.seq, ep: ev.episode, finalists: left, side: tr.length ? 'Traitors' : 'Faithful',
+            winners: nobody ? [] : (tr.length ? tr : left), nobody: !!nobody};
+  }
+  // Who's likely to win a game still in progress (see OUTLOOK in server.py).
+  const OUTLOOK = {traitor: [2.22, -1.287], faithful: [3.145, -1.62]};
+  const round4 = x => Math.round(x * 1e4) / 1e4;
+  function outlook(left, known) {
+    const n = left.length, tr = left.filter(p => p in known);
+    if (n < 2 || !Object.keys(known).length) return null;
+    const sig = ([a, b]) => 1 / (1 + Math.exp(-(a + b * Math.log(n))));
+    const pt = sig(OUTLOOK.traitor), faithfulWin = Math.pow(1 - pt, tr.length), pf = faithfulWin * sig(OUTLOOK.faithful);
+    const chance = {}; left.forEach(p => { chance[p] = round4(p in known ? pt : pf); });
+    return {n, traitors: tr.length, traitorsWin: round4(1 - faithfulWin), chance};
   }
 
 
@@ -422,6 +454,6 @@
     return R;
   }
 
-  root.LedgerCore = {SETS, EXTRA, KINDS, FIELDS, listGames, loadGame, compute, scoreGame, pointsFor, setKeys, setLabel, revoteBallots, tally, eventLabel, shortNames, computeKeys, keysGame};
+  root.LedgerCore = {SETS, EXTRA, KINDS, FIELDS, listGames, loadGame, compute, scoreGame, pointsFor, setKeys, setLabel, revoteBallots, tally, eventLabel, shortNames, computeKeys, keysGame, endgameOutcome};
   if (typeof module !== 'undefined') module.exports = root.LedgerCore;
 })(typeof window !== 'undefined' ? window : globalThis);

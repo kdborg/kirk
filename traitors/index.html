@@ -155,6 +155,9 @@ table.votes td:first-child .who{display:flex;align-items:center}
 .seat b{font-family:var(--mono);font-size:.78rem;color:var(--accent)}
 .seat button{border:none;background:transparent;color:var(--muted);padding:0 4px}
 .tablewrap{overflow-x:auto}
+table.sgrid td,table.sgrid th{padding:3px 5px;text-align:center} table.sgrid td:first-child{text-align:left;white-space:nowrap;position:sticky;left:0;background:var(--surface);z-index:1}
+table.sgrid td.sg{font-variant-numeric:tabular-nums;font-size:.78rem;white-space:nowrap;border:1px solid var(--surface)}
+table.sgrid th.v{writing-mode:vertical-rl;transform:rotate(180deg);text-transform:none;letter-spacing:0;font-weight:500;white-space:nowrap;vertical-align:bottom}
 table{border-collapse:collapse;width:100%;font-size:.92rem}
 th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
 th{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
@@ -438,15 +441,18 @@ const KIND_INFO = {
   recruit:   ['Recruitment', 'Someone recruited (or blackmailed) into the Traitors.'],
   roundtable:['Roundtable', 'Seating, votes and re-votes, and who was banished.'],
   left:      ['Left the game', 'Walked out, removed, or confessed.'],
+  endgame:   ['Endgame vote', 'In the final: who voted to end the game and who voted to banish again.'],
   note:      ['Note', 'Anything else worth remembering.'],
 };
-const KIND_ORDER = ['traitors','murder','breakfast','mission','recruit','roundtable','left','note'];
+const KIND_ORDER = ['traitors','murder','breakfast','mission','recruit','roundtable','endgame','left','note'];
 const BLANK = {
   traitors:{players:[]}, murder:{players:[]}, recruit:{players:[]}, breakfast:{groups:{}},
   mission:{title:'', shields:[], dagger:'', cars:{}},
   roundtable:{seats:[], votes:{}, revote:{}, moreRevotes:[], dagger:'', banished:'', role:'', chance:false, final:false},
-  left:{players:[], roles:{}}, note:{},
+  left:{players:[], roles:{}}, endgame:{votes:{}, result:''}, note:{},
 };
+/* what an endgame vote decided: "end", "nobody" (ended, nobody won the prize), "continue" (banish again) or "" */
+function endgameOutcome(e){ if(e.result==='end'||e.result==='nobody') return e.result; const v=Object.values(e.votes||{}); return !v.length?'':v.every(x=>x==='end')?'end':'continue'; }
 const blankEvent = kind => Object.assign({note:''}, JSON.parse(JSON.stringify(BLANK[kind]||{})));
 const evPos = (g,id) => g.events.findIndex(e=>e.id===id);
 /* where a new or edited event sits: everything strictly before it in the timeline */
@@ -473,6 +479,7 @@ function evTitle(g,e){
     case 'roundtable': return (e.final?'Final roundtable':'Roundtable')+(e.banished?`: ${esc(pname(g,e.banished))} banished`:'')+(e.chance&&e.banished?' (by the chests)':'');
     case 'left': return `${names(e.players)||'Someone'} left the game`;
     case 'mission': return 'Mission'+(e.title?`: ${esc(e.title)}`:'');
+    case 'endgame': return {end:'Endgame vote: the game ends', nobody:'The game ends: nobody wins', continue:'Endgame vote: banish again'}[endgameOutcome(e)]||'Endgame vote';
     default: return esc(KIND_INFO[e.kind]?KIND_INFO[e.kind][0]:e.kind);
   }
 }
@@ -491,6 +498,9 @@ function evBits(g,e){
     if(e.chance) bits.push('<span class="pill a">Decided by the chests</span>');
   }
   if(e.kind==='left') (e.players||[]).forEach(id=>bits.push(`<span class="pill n">${nm(id)}${(e.roles||{})[id]?' · '+e.roles[id]:''}</span>`));
+  if(e.kind==='endgame'){ const v=Object.entries(e.votes||{}), en=v.filter(x=>x[1]==='end').length, co=v.length-en;
+    if(v.length) bits.push(`<span class="pill n">${en} end · ${co} banish again</span>`);
+    const o=endgameOutcome(e); if(o==='end'||o==='nobody') bits.push(`<span class="pill a">${o==='nobody'?'Game over, nobody won':'Game over'}</span>`); }
   if(e.note) bits.push(`<span class="muted small">${esc(e.note.length>90?e.note.slice(0,88)+'…':e.note)}</span>`);
   return bits.join('');
 }
@@ -627,6 +637,14 @@ function renderEditor(g){
     body=`<div class="section"><h3>Left the game</h3><p class="muted small">Walked out, removed, or confessed. Tap to mark, then set their role if it was revealed.</p><div class="chips">${chipsFor(alive,e.players,'tg')}</div>
       ${(e.players||[]).map(id=>`<div class="row small">${nm(id)} was <select id="lr-${esc(id)}" data-leftrole="${esc(id)}"><option value="">role not revealed</option><option ${(e.roles||{})[id]==='Faithful'?'selected':''}>Faithful</option><option ${(e.roles||{})[id]==='Traitor'?'selected':''}>Traitor</option></select></div>`).join('')}</div>`;
   }
+  else if(kind==='endgame'){
+    const v=e.votes||{}, o=endgameOutcome(e);
+    const opt=(id,val,lab)=>`<option value="${val}" ${(v[id]||'')===val?'selected':''}>${lab}</option>`;
+    body=`<div class="section"><h3>Endgame vote</h3><p class="muted small">After a banishment in the final, the players left vote to end the game or banish again. The game ends only if everyone votes to end; it also ends when two players are left. When it ends, any Traitor still in the game wins alone; with no Traitor left, the Faithful share the prize.</p>
+      <div class="bgrid">${alive.map(p=>`<div class="bcell"><span class="who">${mini(p)}${esc(p.name)}</span><select id="eg-${esc(p.id)}" data-endvote="${esc(p.id)}" aria-label="${esc(p.name)}'s endgame vote">${opt(p.id,'','—')}${opt(p.id,'end','End game')}${opt(p.id,'continue','Banish again')}</select></div>`).join('')}</div>
+      <div class="note small">${o==='end'?'Everyone voted to end: <b>the game is over</b>.':o==='continue'?'Not unanimous: <b>they banish again</b>. Add the next roundtable after this.':o==='nobody'?'<b>The game is over</b> and nobody won the prize.':'No votes entered yet.'}</div>
+      <div class="row"><label class="small" for="evResult">Result</label><select id="evResult" data-one="result"><option value="" ${!e.result?'selected':''}>Decided by the votes</option><option value="end" ${e.result==='end'?'selected':''}>The game ended here (votes unknown)</option><option value="nobody" ${e.result==='nobody'?'selected':''}>The game ended, and nobody won the prize</option></select></div></div>`;
+  }
   return `<div class="panel">
     <div class="row spread"><h2>${esc(KIND_INFO[kind][0])} <span class="muted small num">(${pos})</span></h2><button class="btn sm ghost" data-act="ev-cancel">Back to the timeline</button></div>
     <div class="row"><label class="small" for="evEp">Episode</label><input type="number" min="1" id="evEp" value="${esc(editing.episode||'')}" style="width:5em"><span class="muted small">${alive.length} of ${g.players.length} players still in the game at this point.</span></div>
@@ -700,6 +718,7 @@ function renderReport(g){
       <div class="row"><label class="label" for="reportSet">Points used</label><select id="reportSet">${(R.sets||[]).map(o=>`<option value="${esc(o.key)}" ${o.key===R.set?'selected':''}>${esc(o.label)}${o.key===g.pointSet?' (game default)':''}</option>`).join('')}</select></div></div>
     ${R.set!==g.pointSet?`<p class="muted small">Showing this report with ${esc((R.sets.find(o=>o.key===R.set)||{}).label||'')}. The game's saved setting on the Points tab hasn't changed.</p>`:''}
     ${cards}
+    ${resultSection(g,R)}
     ${hasKnown?`<div class="row"><label class="small"><input type="checkbox" id="showT" data-act="show-traitors" ${showT?'checked':''}> Show who the Traitors are</label><span class="muted small">Untick before showing this screen to someone who hasn't watched yet.</span></div>`:''}
     <div class="section"><h3>Current ranking</h3><p class="muted small">Players still in play, most suspicious first. Higher score leans Traitor. Chance combines the scores with the possible Traitor groups below. The arrow shows the change in rank since the previous murder or banishment. Tap a player to see every clue behind their score.</p>
       <div class="tablewrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Move</th><th class="r">Score</th><th class="r" title="Chance of being a Traitor, from the possible groups weighted by points">Chance</th><th>Leans Faithful · Traitor</th></tr></thead><tbody>${rows||'<tr><td colspan="6" class="muted">Nobody is left in play.</td></tr>'}</tbody></table></div></div>
@@ -708,6 +727,7 @@ function renderReport(g){
       <p class="muted small">${chartMode==='chance'?'Chance of being a Traitor after each murder and banishment, from the possible groups weighted by points. A line ends when the player leaves.':chartMode==='rank'?'Rank among players still in play after each murder and banishment; 1 is the top suspect. A line ends when the player leaves, marked T (revealed Traitor), F (revealed Faithful) or ? (role unknown).':'Running score after each murder and banishment. Above zero leans Traitor, below leans Faithful.'} Along the bottom: M murdered, B banished, L left the game. Tap a name to pick out one line.</p>
       ${chart(g,R)}
       <div class="legend">${g.players.map(p=>`<button data-act="hl" data-pid="${esc(p.id)}" aria-pressed="${highlight===p.id}"><i style="background:${colorOf(g,p.id)}"></i>${esc(p.name)}${showT&&R.known&&R.known[p.id]?' <b style="color:var(--traitor)">T</b>':''}</button>`).join('')}</div>${hasKnown&&showT?'<p class="muted small">Traitors you recorded are drawn with thicker lines and marked T.</p>':''}</div>
+    ${scoreGrid(g,R)}
     ${outRows?`<div class="section"><h3>Out of the game</h3><div class="tablewrap"><table><thead><tr><th>Player</th><th>How</th><th>Role</th><th class="r">Final score</th></tr></thead><tbody>${outRows}</tbody></table></div></div>`:''}
     ${hasKnown && showT ? accuracySection(g,R) : ''}
     <div class="section rw-only"><div class="row spread"><h3>Saved reports</h3><button class="btn primary" data-act="save-report">Save this report</button></div>
@@ -718,6 +738,46 @@ function renderReport(g){
       ${exportInfo&&exportInfo.folder?`<p class="small">Last export: <a href="${esc(exportInfo.url)}" target="_blank" rel="noopener">open it</a> · <span class="num muted">${esc(exportInfo.folder)}</span></p>`:''}</div>
     <div class="section"><h3>Reading the scores</h3><p class="muted small" style="max-width:75ch">The method is Hannah Fry's, from <a href="https://www.youtube.com/watch?v=twDvxNooI_4" target="_blank" rel="noopener">How would Alan Turing have played the Traitors?</a>. Across 20 completed seasons these clues ranked a random Traitor above a random Faithful about 58–59% of the time, against 50% for guessing. Treat the ranking as a nudge, not a verdict, and expect it to say little until the first Traitor is banished, since most clues fire on that night.</p></div>
   </div>`;
+}
+
+/* every player's score after each murder and banishment; rows end when players leave, so it narrows into a triangle */
+function scoreGrid(g,R){
+  const S=R.snaps; if(!S.length) return '';
+  const last=S[S.length-1], out=last.out;
+  const order=g.players.map(p=>p.id).sort((a,b)=>{ const oa=out[a], ob=out[b];
+    if(!oa&&!ob) return last.score[b]-last.score[a]; if(!oa) return -1; if(!ob) return 1; return ob.at-oa.at || last.score[a]-last.score[b]; });
+  const top=Math.max(1,...S.flatMap(s=>s.inPlay.map(i=>Math.abs(s.score[i]))),...Object.keys(out).map(i=>Math.abs(last.score[i])));
+  const cell=(v,extra)=>{ const a=Math.round(Math.min(1,Math.abs(v)/top)*55), c=v>0?'var(--traitor)':v<0?'var(--faithful)':'';
+    return `<td class="sg" style="${c?`background:color-mix(in srgb, ${c} ${a}%, var(--surface))`:''}">${Math.abs(v)<5e-3?'<span class="muted">0</span>':fmt(v)}${extra||''}</td>`; };
+  const rows=order.map(id=>`<tr><td><span class="who">${avatar(g,id)}${esc(pname(g,id))}${showT&&R.known&&R.known[id]?' <span class="pill t">Traitor</span>':''}</span></td>${S.map(s=>{ const o=s.out[id];
+    if(s.inPlay.includes(id)) return cell(s.score[id]);
+    if(o&&o.at===s.at) return cell(s.score[id],` <b class="small">${o.hidden?'?':({Traitor:'T',Faithful:'F'}[o.role]||'?')}</b>`);
+    return '<td></td>'; }).join('')}</tr>`).join('');
+  return `<div class="section"><h3>Score grid</h3><p class="muted small">Each player's Turing points after every murder and banishment, longest in the game at the top, so the grid narrows as players leave. Red leans Traitor, green leans Faithful; the darker the cell, the stronger the lean. A row ends at the step the player left: T revealed Traitor, F revealed Faithful, ? not revealed.</p>
+    <div class="tablewrap"><table class="sgrid"><thead><tr><th>Player</th>${S.map(s=>`<th class="v" title="${esc(s.label)}">${esc(s.short)}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+/* winners of a finished game, or the outlook for one still in progress */
+function resultSection(g,R){
+  const nm=id=>esc(pname(g,id)), names=ids=>[...(ids||[])].sort((a,b)=>pname(g,a).localeCompare(pname(g,b))).map(nm).join(', ')||'nobody';
+  const rounds=g.events.filter(e=>e.kind==='endgame'&&Object.keys(e.votes||{}).length);
+  const votes=rounds.length?`<div class="tablewrap"><table><thead><tr><th>Endgame vote</th><th>End the game</th><th>Banish again</th><th>Result</th></tr></thead><tbody>${rounds.map((e,i)=>{ const v=Object.entries(e.votes||{}), o=endgameOutcome(e);
+      return `<tr><td class="muted">${e.episode?'Ep '+e.episode+' · ':''}round ${i+1}</td><td>${names(v.filter(x=>x[1]==='end').map(x=>x[0]).sort((a,b)=>pname(g,a).localeCompare(pname(g,b))))}</td><td>${names(v.filter(x=>x[1]==='continue').map(x=>x[0]).sort((a,b)=>pname(g,a).localeCompare(pname(g,b))))}</td><td>${{end:'Game over',nobody:'Game over, nobody won',continue:'Banish again'}[o]||'—'}</td></tr>`; }).join('')}</tbody></table></div>`:'';
+  const o=R.over;
+  if(o){
+    let head;
+    if(o.nobody) head=`The game is over, and nobody won the prize. ${o.side==='Traitors'?'Traitors':'Faithful'} reached the end: ${names(o.finalists)}.`;
+    else if(o.side==='Traitors'){ const caught=o.finalists.filter(p=>!o.winners.includes(p)); head=`The Traitors won: <b style="color:var(--traitor)">${names(o.winners)}</b>.${caught.length?` They take the prize alone; the Faithful still in the game (${names(caught)}) get nothing.`:''}`; }
+    else head=`The Faithful won: <b style="color:var(--faithful)">${names(o.winners)}</b> share the prize; every Traitor was caught.`;
+    return `<div class="section"><h3>${o.nobody?'Result: nobody won':'Winners'}</h3><div class="cards">${(o.nobody?o.finalists:o.winners).map(id=>`<div class="card"><span class="who">${avatar(g,id)}<b>${nm(id)}</b></span><span class="pill ${R.known&&R.known[id]?'t':'f'}" style="align-self:flex-start">${R.known&&R.known[id]?'Traitor':'Faithful'}</span></div>`).join('')}</div><p>${head}</p>${votes}</div>`;
+  }
+  const ol=R.outlook;
+  if(!ol) return votes?`<div class="section"><h3>Endgame</h3>${votes}</div>`:'';
+  const rows=Object.entries(ol.chance).sort((a,b)=>b[1]-a[1]||pname(g,a[0]).localeCompare(pname(g,b[0])));
+  return `<div class="section"><h3>Who wins?</h3><p>The game isn't over. With ${ol.n} players left and ${ol.traitors} Traitor${ol.traitors===1?'':'s'} among them, the Traitors win about <b>${pctf(ol.traitorsWin)}</b> of the time in the completed seasons.</p>
+    ${showT?`<div class="tablewrap"><table><thead><tr><th>Player</th><th class="r">Chance of winning</th><th></th></tr></thead><tbody>${rows.map(([id,c])=>`<tr><td><span class="who">${avatar(g,id)}${nm(id)}</span>${R.known&&R.known[id]?' <span class="pill t">Traitor</span>':''}</td><td class="r num">${pctf(c)}</td><td style="width:40%"><div class="bar"><span style="left:0;width:${Math.round(c*100)}%;background:var(--accent)"></span></div></td></tr>`).join('')}</tbody></table></div>
+    <p class="muted small">A Traitor wins if they reach the end; the Faithful win only if every Traitor is caught. From how often players won from the same position in the 44 completed seasons. The points and suspicion ranks didn't improve these chances, so they aren't used.</p>`
+    :'<p class="muted small">Tick <b>Show who the Traitors are</b> to see each player\'s chance: it gives away who the Traitors are.</p>'}${votes}</div>`;
 }
 
 /* keys report: a separate yes/no checklist, not the Turing points */
@@ -986,6 +1046,7 @@ document.addEventListener('change', async ev=>{
       if(t.dataset.car){ e.cars=e.cars||{}; e.cars[t.dataset.car]=+t.value; const y=window.scrollY; render(); window.scrollTo(0,y); const el=document.getElementById('car-'+t.dataset.car); if(el) el.focus(); return; }
       if(t.dataset.k){ ballotObj(e, t.dataset.k)[t.dataset.pid]=t.value; render(); return; }
       if(t.dataset.leftrole){ e.roles=e.roles||{}; e.roles[t.dataset.leftrole]=t.value; return; }
+      if(t.dataset.endvote){ e.votes=e.votes||{}; if(t.value) e.votes[t.dataset.endvote]=t.value; else delete e.votes[t.dataset.endvote]; const y=window.scrollY; render(); window.scrollTo(0,y); const el=document.getElementById('eg-'+t.dataset.endvote); if(el) el.focus(); return; }
       if(t.dataset.one){ e[t.dataset.one]=t.value; render(); return; }
       if(t.dataset.text){ e[t.dataset.text]=t.value; return; }
     }
