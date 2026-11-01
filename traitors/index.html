@@ -435,8 +435,8 @@ function renderPlayers(g){
 /* timeline: the game as an ordered list of events */
 const KIND_INFO = {
   traitors:  ['Traitors chosen', 'Who the Traitors are, as the show reveals them to viewers.'],
-  murder:    ['Murder', 'Who was murdered overnight.'],
-  breakfast: ['Breakfast', 'The order players came down to breakfast.'],
+  murder:    ['Murder', 'A murder revealed somewhere other than breakfast, such as at a mission.'],
+  breakfast: ['Breakfast', 'Who was revealed as murdered, and the order players came down to breakfast.'],
   mission:   ['Mission', 'A mission or challenge: cars, shields, the dagger.'],
   recruit:   ['Recruitment', 'Someone recruited (or blackmailed) into the Traitors.'],
   roundtable:['Roundtable', 'Seating, votes and re-votes, and who was banished.'],
@@ -446,7 +446,7 @@ const KIND_INFO = {
 };
 const KIND_ORDER = ['traitors','murder','breakfast','mission','recruit','roundtable','endgame','left','note'];
 const BLANK = {
-  traitors:{players:[]}, murder:{players:[]}, recruit:{players:[]}, breakfast:{groups:{}},
+  traitors:{players:[]}, murder:{players:[]}, recruit:{players:[]}, breakfast:{groups:{}, murdered:[]},
   mission:{title:'', shields:[], dagger:'', cars:{}},
   roundtable:{seats:[], votes:{}, revote:{}, moreRevotes:[], dagger:'', banished:'', role:'', chance:false, final:false},
   left:{players:[], roles:{}}, endgame:{votes:{}, result:''}, note:{},
@@ -463,7 +463,7 @@ function eventsBefore(g){
   if(editing.after){ const i=evPos(g,editing.after); return g.events.slice(0, i+1); }
   return g.events;
 }
-function outIn(evs){ const out=new Set(); evs.forEach(e=>{ if(e.kind==='murder'||e.kind==='left') (e.players||[]).forEach(x=>out.add(x)); if(e.kind==='roundtable'&&e.banished) out.add(e.banished); }); return out; }
+function outIn(evs){ const out=new Set(); evs.forEach(e=>{ if(e.kind==='murder'||e.kind==='left') (e.players||[]).forEach(x=>out.add(x)); if(e.kind==='breakfast') (e.murdered||[]).forEach(x=>out.add(x)); if(e.kind==='roundtable'&&e.banished) out.add(e.banished); }); return out; }
 function traitorsIn(evs){ const m=new Map(); evs.forEach(e=>{ if(e.kind==='traitors'||e.kind==='recruit') (e.players||[]).forEach(id=>{ if(!m.has(id)) m.set(id,{kind:e.kind==='traitors'?'original':'recruited', ep:e.episode, seq:e.seq}); }); }); return m; }
 function roleOf(g,id){
   const before=traitorsIn(eventsBefore(g));
@@ -475,6 +475,7 @@ function evTitle(g,e){
   const names=ids=>(ids||[]).map(id=>esc(pname(g,id))).join(', ');
   switch(e.kind){
     case 'murder': return `${names(e.players)||'Nobody'} murdered`;
+    case 'breakfast': return (e.murdered||[]).length? `Breakfast: ${names(e.murdered)} murdered` : 'Breakfast';
     case 'recruit': return `${names(e.players)||'Someone'} recruited`;
     case 'roundtable': return (e.final?'Final roundtable':'Roundtable')+(e.banished?`: ${esc(pname(g,e.banished))} banished`:'')+(e.chance&&e.banished?' (by the chests)':'');
     case 'left': return `${names(e.players)||'Someone'} left the game`;
@@ -487,6 +488,7 @@ function evBits(g,e){
   const nm=id=>esc(pname(g,id)), bits=[];
   if(e.kind==='traitors'||e.kind==='recruit') bits.push(`<span class="pill t">${(e.players||[]).map(nm).join(', ')||'nobody picked yet'}</span>`);
   if(e.kind==='murder') (e.players||[]).forEach(id=>bits.push(`<span class="pill f">${nm(id)}</span>`));
+  if(e.kind==='breakfast') (e.murdered||[]).forEach(id=>bits.push(`<span class="pill f">Murdered: ${nm(id)}</span>`));
   if(e.kind==='breakfast'){ const v=Object.entries(e.groups||{}).filter(([,n])=>+n>0); if(v.length){ const mx=Math.max(...v.map(x=>+x[1])); bits.push(`<span class="pill n">Last in: ${v.filter(x=>+x[1]===mx).map(x=>pname(g,x[0])).sort((a,b)=>a.localeCompare(b)).map(esc).join(', ')}</span>`); } }
   if(e.kind==='mission'){ if(Object.values(e.cars||{}).some(x=>+x>0)) bits.push('<span class="pill n">Cars logged</span>'); (e.shields||[]).forEach(id=>bits.push(`<span class="pill n">Shield: ${nm(id)}</span>`)); if(e.dagger) bits.push(`<span class="pill a">Dagger: ${nm(e.dagger)}</span>`); }
   if(e.kind==='roundtable'){
@@ -604,8 +606,10 @@ function renderEditor(g){
     body=`<div class="section"><h3>Murdered</h3><p class="muted small">Tap anyone the Traitors murdered. They're cleared as Faithful.</p><div class="chips">${chipsFor(alive,e.players,'tg')}</div></div>`;
   } else if(kind==='breakfast'){
     const v=Object.entries(e.groups||{}).filter(([id,n])=>+n>0&&alive.some(p=>p.id===id)), mx=v.length?Math.max(...v.map(x=>+x[1])):0;
-    body=`<div class="section"><h3>Breakfast order</h3><p class="muted small">Give everyone the number of the group they arrived in: 1 for the first group in, and so on. The highest number is the last group.</p>
-      ${numGrid(alive,e.groups,'grp','Group')}${carList(alive,e.groups,'Group',true)}</div>`;
+    const dead=e.murdered||[], eating=alive.filter(p=>!dead.includes(p.id));
+    body=`<div class="section"><h3>Murdered</h3><p class="muted small">Tap anyone revealed as murdered at this breakfast: the player who never came down. They're cleared as Faithful. A murder revealed somewhere else, such as at a mission, goes in its own <b>Murder</b> event.</p><div class="chips">${chipsFor(alive,dead,'bfm')}</div></div>
+      <div class="section"><h3>Breakfast order</h3><p class="muted small">Give everyone the number of the group they arrived in: 1 for the first group in, and so on. The highest number is the last group.</p>
+      ${numGrid(eating,e.groups,'grp','Group')}${carList(eating,e.groups,'Group',true)}</div>`;
   } else if(kind==='mission'){
     const abc=[...alive].sort((a,b)=>a.name.localeCompare(b.name));   // everyone still in the game, Traitors included, A to Z
     body=`<div class="section"><div class="row"><label class="small" for="evTitle">Mission name</label><input type="text" id="evTitle" data-text="title" value="${esc(e.title||'')}" placeholder="optional" style="flex:1;min-width:180px"></div></div>
@@ -978,6 +982,7 @@ document.addEventListener('click', async ev=>{
     case 'ev-cancel': editing=null; render(); break;
     case 'tg': toggleIn(editing.ev,'players',b.dataset.pid); render(); break;
     case 'shield': toggleIn(editing.ev,'shields',b.dataset.pid); render(); break;
+    case 'bfm': toggleIn(editing.ev,'murdered',b.dataset.pid); if(editing.ev.groups) delete editing.ev.groups[b.dataset.pid]; render(); break;
     case 'show-traitors': showT=!showT; lsSet('rl.showT',showT?'1':'0'); render(); break;
     case 'seat-add': editing.ev.seats=(editing.ev.seats||[]).concat(b.dataset.pid); render(); break;
     case 'seat-del': editing.ev.seats.splice(+b.dataset.i,1); render(); break;

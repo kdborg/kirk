@@ -47,7 +47,7 @@
   const KINDS = {traitors: 'Traitors chosen', murder: 'Murder', breakfast: 'Breakfast', mission: 'Mission',
                  recruit: 'Recruitment', roundtable: 'Roundtable', left: 'Left the game', endgame: 'Endgame vote', note: 'Note'};
   const FIELDS = {
-    traitors: {players: []}, murder: {players: []}, recruit: {players: []}, breakfast: {groups: {}},
+    traitors: {players: []}, murder: {players: []}, recruit: {players: []}, breakfast: {groups: {}, murdered: []},
     mission: {title: '', shields: [], dagger: '', cars: {}},
     roundtable: {seats: [], votes: {}, revote: {}, moreRevotes: [], dagger: '', banished: '', role: '', chance: false, final: false},
     left: {players: [], roles: {}}, endgame: {votes: {}, result: ''}, note: {},
@@ -155,6 +155,12 @@
     }));
     return out;
   }
+  // who an event reveals as murdered: a murder event, or a breakfast where they didn't come down
+  function murderedBy(ev) {
+    if (ev.kind === 'murder') return (ev.players || []).slice();
+    if (ev.kind === 'breakfast') return (ev.murdered || []).slice();
+    return [];
+  }
   function endgameOutcome(ev) {
     if (ev.result === 'end' || ev.result === 'nobody') return ev.result;
     const v = Object.values(ev.votes || {});
@@ -166,6 +172,7 @@
     switch (ev.kind) {
       case 'endgame': return {end: 'The game ended', nobody: 'The game ended, nobody won', continue: 'Endgame vote: banish again'}[endgameOutcome(ev)] || 'Endgame vote';
       case 'murder': return (ev.players || []).length ? `${names(ev.players)} murdered` : 'Murder (nobody picked yet)';
+      case 'breakfast': return (ev.murdered || []).length ? `${names(ev.murdered)} murdered` : KINDS.breakfast;
       case 'roundtable': return ev.banished ? `${nm[ev.banished] || '?'} banished` : 'Roundtable, nobody banished yet';
       case 'left': return (ev.players || []).length ? `${names(ev.players)} left` : 'Left the game (nobody picked yet)';
       case 'recruit': return `${names(ev.players || [])} recruited`;
@@ -272,12 +279,11 @@
       let mark = null;
       if (k === 'traitors') (ev.players || []).forEach(p => { if (!(p in known)) known[p] = {at, kind: 'original'}; });
       else if (k === 'recruit') (ev.players || []).forEach(p => { if (!(p in known)) known[p] = {at, kind: 'recruited'}; });
-      else if (k === 'murder') {
-        const nw = (ev.players || []).filter(p => !(p in out));
+      else if (k === 'murder' || k === 'breakfast') {
+        const nw = murderedBy(ev).filter(p => !(p in out));
         nw.forEach(p => { out[p] = {at, ep: ev.episode, how: 'murdered', role: 'Faithful'}; });
         if (nw.length) mark = 'M · ' + nw.map(p => short[p] || '?').join(', ');
-      } else if (k === 'breakfast') {
-        const bf = Object.entries(ev.groups || {}).filter(([p, gn]) => (parseInt(gn, 10) || 0) > 0 && !(p in out)).map(([p, gn]) => [p, parseInt(gn, 10)]);
+        const bf = k === 'murder' ? [] : Object.entries(ev.groups || {}).filter(([p, gn]) => (parseInt(gn, 10) || 0) > 0 && !(p in out)).map(([p, gn]) => [p, parseInt(gn, 10)]);
         if (bf.length) { const mx = Math.max(...bf.map(x => x[1])); lastGroups.push({at, ep: ev.episode, members: bf.filter(x => x[1] === mx).map(x => x[0])}); }
       } else if (k === 'roundtable') {
         const fb = Object.entries(ev.votes || {}).filter(([v, t]) => t && !(v in out));
@@ -397,8 +403,8 @@
     let lastSnapped = null;
     g.events.forEach(ev => {
       const k = ev.kind, seq = ev.seq; let m = null;
-      if (k === 'murder' && (ev.players || []).length) {
-        const victims = ev.players.filter(p => !(p in out));
+      if (murderedBy(ev).length) {
+        const victims = murderedBy(ev).filter(p => !(p in out));
         victims.forEach(v => { if (v in lastVote) mark(lastVote[v], 'victim', ev, `${nm(v)}'s last vote was for them, then ${nm(v)} was murdered`); });
         ballots.forEach(b => { if (b.rt === rt && victims.includes(b.target)) mark(b.voter, 'murdered', ev, `Voted for ${nm(b.target)}, who was then murdered`); });
         victims.forEach(v => { out[v] = {at: seq, ep: ev.episode, how: 'murdered', role: 'Faithful'}; });
